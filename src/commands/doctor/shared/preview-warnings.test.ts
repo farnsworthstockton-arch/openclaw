@@ -436,7 +436,7 @@ describe("doctor preview warnings", () => {
         },
       },
       tools: {
-        profile: "coding",
+        allow: ["read"],
       },
     });
 
@@ -446,6 +446,33 @@ describe("doctor preview warnings", () => {
     );
     expect(warning).toContain("normal replies may post to the source chat");
     expect(warning).toContain('set messages.groupChat.visibleReplies to "automatic"');
+  });
+
+  it("does not warn when source reply delivery grants message at runtime", () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          model: {
+            primary: "openai/gpt-5.5",
+          },
+        },
+        list: [
+          {
+            id: "main",
+          },
+        ],
+      },
+      channels: {
+        discord: {},
+        telegram: {},
+      },
+      tools: {
+        profile: "coding" as const,
+      },
+    };
+
+    expect(collectVisibleReplyToolPolicyWarnings(cfg)).toStrictEqual([]);
+    expect(collectChannelBoundMessageToolPolicyWarnings(cfg)).toStrictEqual([]);
   });
 
   it("warns for direct chats when global visible replies are tool-only but groups override automatic", () => {

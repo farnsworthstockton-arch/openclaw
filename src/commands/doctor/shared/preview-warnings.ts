@@ -92,13 +92,15 @@ type VisibleReplyPolicyProvenance = "default" | "global-explicit" | "group-expli
 function resolveMessageToolAvailability(params: {
   globalTools?: ToolsConfig;
   agentTools?: AgentToolsConfig;
+  runtimeAlsoAllow?: string[];
 }): boolean {
   const profile = params.agentTools?.profile ?? params.globalTools?.profile;
-  const profileAlsoAllow = Array.isArray(params.agentTools?.alsoAllow)
+  const configuredAlsoAllow = Array.isArray(params.agentTools?.alsoAllow)
     ? params.agentTools.alsoAllow
     : Array.isArray(params.globalTools?.alsoAllow)
       ? params.globalTools.alsoAllow
-      : undefined;
+      : [];
+  const profileAlsoAllow = [...configuredAlsoAllow, ...(params.runtimeAlsoAllow ?? [])];
   const profilePolicy = mergeAlsoAllowPolicy(resolveToolProfilePolicy(profile), profileAlsoAllow);
   return isToolAllowedByPolicies("message", [
     profilePolicy,
@@ -107,21 +109,53 @@ function resolveMessageToolAvailability(params: {
   ]);
 }
 
-function collectMessageToolUnavailableTargets(cfg: OpenClawConfig): string[] {
+const SOURCE_REPLY_RUNTIME_MESSAGE_ALLOW = ["message"];
+
+function resolveSourceReplyMessageToolAvailability(params: {
+  globalTools?: ToolsConfig;
+  agentTools?: AgentToolsConfig;
+}): boolean {
+  return resolveMessageToolAvailability({
+    ...params,
+    runtimeAlsoAllow: SOURCE_REPLY_RUNTIME_MESSAGE_ALLOW,
+  });
+}
+
+function sourceReplyRuntimeMayAllowMessageTool(cfg: OpenClawConfig): boolean {
+  const groupPolicy = resolveGroupVisibleReplyProvenance(cfg);
+  if (hasChannels(cfg) && groupPolicy.value === "message_tool") {
+    return true;
+  }
+  if (cfg.messages?.visibleReplies === "message_tool") {
+    return true;
+  }
+  return false;
+}
+
+function collectMessageToolUnavailableTargets(
+  cfg: OpenClawConfig,
+  options: { sourceReplyRuntimeGrant?: boolean } = {},
+): string[] {
   const agents = listAgentRecords(cfg);
   if (agents.length === 0) {
-    return resolveMessageToolAvailability({ globalTools: cfg.tools })
-      ? []
-      : ["default tool policy"];
+    const available = options.sourceReplyRuntimeGrant
+      ? resolveSourceReplyMessageToolAvailability({ globalTools: cfg.tools })
+      : resolveMessageToolAvailability({ globalTools: cfg.tools });
+    return available ? [] : ["default tool policy"];
   }
-  return agents.flatMap((agent) =>
-    resolveMessageToolAvailability({
-      globalTools: cfg.tools,
-      agentTools: agent.tools as AgentToolsConfig | undefined,
-    })
-      ? []
-      : [`agent "${typeof agent.id === "string" ? agent.id : "unknown"}"`],
-  );
+  return agents.flatMap((agent) => {
+    const agentId = typeof agent.id === "string" ? agent.id : "unknown";
+    const available = options.sourceReplyRuntimeGrant
+      ? resolveSourceReplyMessageToolAvailability({
+          globalTools: cfg.tools,
+          agentTools: agent.tools as AgentToolsConfig | undefined,
+        })
+      : resolveMessageToolAvailability({
+          globalTools: cfg.tools,
+          agentTools: agent.tools as AgentToolsConfig | undefined,
+        });
+    return available ? [] : [`agent "${agentId}"`];
+  });
 }
 
 function resolveGroupVisibleReplyProvenance(cfg: OpenClawConfig): {
@@ -160,14 +194,14 @@ function formatTargets(targets: string[]): string {
 }
 
 export function collectVisibleReplyToolPolicyWarnings(cfg: OpenClawConfig): string[] {
-  const targets = collectMessageToolUnavailableTargets(cfg);
-  if (targets.length === 0) {
-    return [];
-  }
   const groupPolicy = resolveGroupVisibleReplyProvenance(cfg);
   const warnings: string[] = [];
   if (groupPolicy.value === "message_tool") {
     if (groupPolicy.provenance === "default" && !hasChannels(cfg)) {
+      return warnings;
+    }
+    const targets = collectMessageToolUnavailableTargets(cfg, { sourceReplyRuntimeGrant: true });
+    if (targets.length === 0) {
       return warnings;
     }
     const targetSummary = formatTargets(targets);
@@ -184,6 +218,10 @@ export function collectVisibleReplyToolPolicyWarnings(cfg: OpenClawConfig): stri
 
   const globalVisibleReplies = cfg.messages?.visibleReplies;
   if (globalVisibleReplies === "message_tool" && groupPolicy.path !== "messages.visibleReplies") {
+    const targets = collectMessageToolUnavailableTargets(cfg, { sourceReplyRuntimeGrant: true });
+    if (targets.length === 0) {
+      return warnings;
+    }
     warnings.push(
       `- messages.visibleReplies is set to "message_tool", but the message tool is unavailable for ${formatTargets(
         targets,
@@ -206,7 +244,11 @@ function formatChannelList(channels: string[]): string {
 export function collectChannelBoundMessageToolPolicyWarnings(cfg: OpenClawConfig): string[] {
   return collectChannelRouteTargets(cfg).flatMap((target) => {
     const agentTools = resolveAgentConfig(cfg, target.agentId)?.tools;
-    if (resolveMessageToolAvailability({ globalTools: cfg.tools, agentTools })) {
+    const runtimeMayAllowMessage = sourceReplyRuntimeMayAllowMessageTool(cfg);
+    const messageToolAvailable = runtimeMayAllowMessage
+      ? resolveSourceReplyMessageToolAvailability({ globalTools: cfg.tools, agentTools })
+      : resolveMessageToolAvailability({ globalTools: cfg.tools, agentTools });
+    if (messageToolAvailable) {
       return [];
     }
     return [
