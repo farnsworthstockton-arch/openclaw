@@ -114,6 +114,7 @@ vi.mock("../../../plugins/clawhub.js", () => ({
   CLAWHUB_INSTALL_ERROR_CODE: {
     PACKAGE_NOT_FOUND: "package_not_found",
     VERSION_NOT_FOUND: "version_not_found",
+    CLAWHUB_DOWNLOAD_BLOCKED: "clawhub_download_blocked",
   },
   installPluginFromClawHub: mocks.installPluginFromClawHub,
 }));
@@ -269,15 +270,142 @@ describe("repairMissingConfiguredPluginInstalls", () => {
       env: {},
     });
 
-    expectRecordFields(mockCallArg(mocks.installPluginFromClawHub), {
+    const clawHubCall = expectRecordFields(mockCallArg(mocks.installPluginFromClawHub), {
       spec: "clawhub:@openclaw/plugin-matrix@stable",
       expectedPluginId: "matrix",
     });
+    expect(clawHubCall.logger).toEqual(expect.objectContaining({ terminalLinks: false }));
     expect(mocks.installPluginFromNpmSpec).not.toHaveBeenCalled();
     expect(result.changes).toEqual([
       'Installed missing configured plugin "matrix" from clawhub:@openclaw/plugin-matrix@stable.',
     ]);
     expect(result.warnings).toStrictEqual([]);
+  });
+
+  it("adds actionable acknowledgement guidance for risky ClawHub candidate failures", async () => {
+    mocks.installPluginFromClawHub.mockResolvedValueOnce({
+      ok: false,
+      code: "clawhub_risk_acknowledgement_required",
+      error:
+        'ClawHub release "@openclaw/plugin-matrix@stable" has trust warnings. Review the package and rerun with --acknowledge-clawhub-risk to continue.',
+    });
+    mocks.listChannelPluginCatalogEntries.mockReturnValue([
+      {
+        id: "matrix",
+        pluginId: "matrix",
+        meta: { label: "Matrix" },
+        install: {
+          clawhubSpec: "clawhub:@openclaw/plugin-matrix@stable",
+        },
+      },
+    ]);
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    const result = await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        channels: {
+          matrix: { enabled: true, homeserver: "https://matrix.example.org" },
+        },
+      },
+      env: {},
+    });
+
+    expect(result.warnings[0]).toContain(
+      "openclaw plugins install clawhub:@openclaw/plugin-matrix@stable --acknowledge-clawhub-risk",
+    );
+  });
+
+  it("adds repair warnings for blocked ClawHub update outcomes", async () => {
+    const records = {
+      demo: {
+        source: "clawhub",
+        spec: "clawhub:@openclaw/plugin-demo@stable",
+        clawhubPackage: "@openclaw/plugin-demo",
+        installPath: "/missing/demo",
+      },
+    };
+    mocks.loadInstalledPluginIndexInstallRecords.mockResolvedValue(records);
+    mocks.updateNpmInstalledPlugins.mockResolvedValueOnce({
+      changed: false,
+      config: {
+        plugins: {
+          installs: records,
+        },
+      },
+      outcomes: [
+        {
+          pluginId: "demo",
+          status: "skipped",
+          code: "clawhub_download_blocked",
+          message:
+            'Skipped demo ClawHub update: ClawHub release "@openclaw/plugin-demo@1.2.4" cannot be installed because ClawHub flagged it as blocked or malicious. Review the security details above or choose a different version. Existing installed plugin left unchanged.',
+        },
+      ],
+    });
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    const result = await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        plugins: {
+          entries: {
+            demo: { enabled: true },
+          },
+        },
+      },
+      env: {},
+    });
+
+    expect(mocks.updateNpmInstalledPlugins).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pluginIds: ["demo"],
+      }),
+    );
+    expect(result.changes).toStrictEqual([]);
+    expect(result.warnings).toStrictEqual([
+      'Skipped demo ClawHub update: ClawHub release "@openclaw/plugin-demo@1.2.4" cannot be installed because ClawHub flagged it as blocked or malicious. Review the security details above or choose a different version. Existing installed plugin left unchanged.',
+    ]);
+  });
+
+  it("sanitizes and shell-quotes ClawHub acknowledgement guidance specs before rendering commands", async () => {
+    mocks.installPluginFromClawHub.mockResolvedValueOnce({
+      ok: false,
+      code: "clawhub_risk_acknowledgement_required",
+      error:
+        'ClawHub release "@openclaw/plugin-matrix@stable" has trust warnings. Review the package and rerun with --acknowledge-clawhub-risk to continue.',
+    });
+    mocks.listChannelPluginCatalogEntries.mockReturnValue([
+      {
+        id: "matrix",
+        pluginId: "matrix",
+        meta: { label: "Matrix" },
+        install: {
+          clawhubSpec: "clawhub:@openclaw/plugin-matrix\n\u001b[31m@stable;$(touch /tmp/pwned)",
+        },
+      },
+    ]);
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    const result = await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        channels: {
+          matrix: { enabled: true, homeserver: "https://matrix.example.org" },
+        },
+      },
+      env: {},
+    });
+
+    const warning = result.warnings[0] ?? "";
+    expect(warning).toContain(
+      "openclaw plugins install 'clawhub:@openclaw/plugin-matrix\\n@stable;$(touch /tmp/pwned)' --acknowledge-clawhub-risk",
+    );
+    expect(warning).not.toContain(
+      "openclaw plugins install clawhub:@openclaw/plugin-matrix\\n@stable;$(touch /tmp/pwned) --acknowledge-clawhub-risk",
+    );
+    expect(warning).not.toContain("\u001b");
+    expect(warning).not.toContain("plugin-matrix\n");
   });
 
   it("installs a missing channel plugin selected by environment config from npm", async () => {
@@ -1329,20 +1457,6 @@ describe("repairMissingConfiguredPluginInstalls", () => {
       {},
     ],
     [
-      "default selectable OpenAI agent model",
-      {
-        agents: {
-          defaults: {
-            model: { primary: "anthropic/claude-sonnet-4-6" },
-            models: {
-              "openai/gpt-5.5": {},
-            },
-          },
-        },
-      },
-      {},
-    ],
-    [
       "agent model runtime policy",
       {
         agents: {
@@ -1762,6 +1876,145 @@ describe("repairMissingConfiguredPluginInstalls", () => {
       env: {},
     });
     expect(result.changes).toEqual(['Repaired missing configured plugin "demo".']);
+  });
+
+  it("forwards ClawHub risk acknowledgement to persisted-record repair", async () => {
+    const records = {
+      demo: {
+        source: "clawhub",
+        spec: "clawhub:@openclaw/plugin-demo@1.0.0",
+        clawhubPackage: "@openclaw/plugin-demo",
+        installPath: "/missing/demo",
+      },
+    };
+    const onClawHubRisk = vi.fn(async () => true);
+    mocks.loadInstalledPluginIndexInstallRecords.mockResolvedValue(records);
+    mocks.updateNpmInstalledPlugins.mockResolvedValue({
+      changed: true,
+      config: {
+        plugins: {
+          installs: {
+            demo: {
+              source: "clawhub",
+              spec: "clawhub:@openclaw/plugin-demo@1.0.0",
+              installPath: "/tmp/openclaw-plugins/demo",
+            },
+          },
+        },
+      },
+      outcomes: [
+        {
+          pluginId: "demo",
+          status: "updated",
+          message: "Updated demo.",
+        },
+      ],
+    });
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        plugins: {
+          entries: {
+            demo: { enabled: true },
+          },
+        },
+      },
+      env: {},
+      acknowledgeClawHubRisk: true,
+      onClawHubRisk,
+    });
+
+    const updateArg = expectRecordFields(mockCallArg(mocks.updateNpmInstalledPlugins), {
+      pluginIds: ["demo"],
+      acknowledgeClawHubRisk: true,
+      onClawHubRisk,
+    });
+    expect(updateArg.logger).toEqual(expect.objectContaining({ terminalLinks: false }));
+    const updateConfig = updateArg.config as Record<string, unknown>;
+    expectRecordFields(updateConfig.plugins, { installs: records });
+  });
+
+  it("adds actionable acknowledgement guidance for risky persisted ClawHub repair failures", async () => {
+    const records = {
+      demo: {
+        source: "clawhub",
+        spec: "clawhub:@openclaw/plugin-demo@1.0.0",
+        clawhubPackage: "@openclaw/plugin-demo",
+        installPath: "/missing/demo",
+      },
+    };
+    mocks.loadInstalledPluginIndexInstallRecords.mockResolvedValue(records);
+    mocks.updateNpmInstalledPlugins.mockResolvedValue({
+      changed: false,
+      config: { plugins: { installs: records } },
+      outcomes: [
+        {
+          pluginId: "demo",
+          status: "skipped",
+          message:
+            'Skipped demo ClawHub update: ClawHub release "@openclaw/plugin-demo@1.0.0" has trust warnings. Review the package and rerun with --acknowledge-clawhub-risk to continue. Existing installed plugin left unchanged.',
+        },
+      ],
+    });
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    const result = await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        plugins: {
+          entries: {
+            demo: { enabled: true },
+          },
+        },
+      },
+      env: {},
+    });
+
+    expect(result.warnings[0]).toContain(
+      "openclaw plugins install clawhub:@openclaw/plugin-demo@1.0.0 --acknowledge-clawhub-risk",
+    );
+  });
+
+  it("prefixes legacy persisted ClawHub package records in acknowledgement guidance", async () => {
+    const records = {
+      demo: {
+        source: "clawhub",
+        clawhubPackage: "@openclaw/plugin-demo",
+        installPath: "/missing/demo",
+      },
+    };
+    mocks.loadInstalledPluginIndexInstallRecords.mockResolvedValue(records);
+    mocks.updateNpmInstalledPlugins.mockResolvedValue({
+      changed: false,
+      config: { plugins: { installs: records } },
+      outcomes: [
+        {
+          pluginId: "demo",
+          status: "skipped",
+          message:
+            'Skipped demo ClawHub update: ClawHub release "@openclaw/plugin-demo@latest" has trust warnings. Review the package and rerun with --acknowledge-clawhub-risk to continue. Existing installed plugin left unchanged.',
+        },
+      ],
+    });
+
+    const { repairMissingConfiguredPluginInstalls } =
+      await import("./missing-configured-plugin-install.js");
+    const result = await repairMissingConfiguredPluginInstalls({
+      cfg: {
+        plugins: {
+          entries: {
+            demo: { enabled: true },
+          },
+        },
+      },
+      env: {},
+    });
+
+    expect(result.warnings[0]).toContain(
+      "openclaw plugins install clawhub:@openclaw/plugin-demo --acknowledge-clawhub-risk",
+    );
   });
 
   it("repairs a broken managed package entry from its attributed registry diagnostic", async () => {

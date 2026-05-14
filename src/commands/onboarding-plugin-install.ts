@@ -890,6 +890,23 @@ async function installPluginFromClawHubSpecWithProgress(params: {
             logInstallWarningWithSpacing(params.runtime, message);
           },
         },
+        onClawHubRisk: async (request) => {
+          animated.stop();
+          progress.stop("Review ClawHub warning");
+          const packageName = sanitizeTerminalText(request.packageName);
+          const releaseLabel = `${packageName}@${sanitizeTerminalText(request.version)}`;
+          if (request.acknowledgementKind === "type-package") {
+            const answer = await params.prompter.text({
+              message: `To install anyway, type the package name for "${releaseLabel}"`,
+              placeholder: packageName,
+            });
+            return answer.trim() === packageName;
+          }
+          return await params.prompter.confirm({
+            message: `Install ClawHub package "${releaseLabel}" after reviewing the warning above?`,
+            initialValue: false,
+          });
+        },
       }),
       ONBOARDING_PLUGIN_INSTALL_WATCHDOG_TIMEOUT_MS,
     );

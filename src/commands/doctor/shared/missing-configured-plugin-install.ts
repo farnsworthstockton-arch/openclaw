@@ -17,7 +17,11 @@ import {
 } from "../../../infra/update-channels.js";
 import { resolveConfiguredChannelPresencePolicy } from "../../../plugins/channel-plugin-ids.js";
 import { buildClawHubPluginInstallRecordFields } from "../../../plugins/clawhub-install-records.js";
-import { CLAWHUB_INSTALL_ERROR_CODE, installPluginFromClawHub } from "../../../plugins/clawhub.js";
+import {
+  CLAWHUB_INSTALL_ERROR_CODE,
+  installPluginFromClawHub,
+  type ClawHubRiskAcknowledgementRequest,
+} from "../../../plugins/clawhub.js";
 import {
   resolveClawHubInstallSpecsForUpdateChannel,
   resolveNpmInstallSpecsForUpdateChannel,
@@ -45,6 +49,7 @@ import { resolveProviderInstallCatalogEntries } from "../../../plugins/provider-
 import { updateNpmInstalledPlugins } from "../../../plugins/update.js";
 import { resolveWebSearchInstallCatalogEntry } from "../../../plugins/web-search-install-catalog.js";
 import { normalizeOptionalLowercaseString } from "../../../shared/string-coerce.js";
+import { sanitizeTerminalText } from "../../../terminal/safe-text.js";
 import { resolveUserPath } from "../../../utils.js";
 import { VERSION } from "../../../version.js";
 import { asObjectRecord } from "./object.js";
@@ -92,6 +97,70 @@ function shouldFallbackClawHubToNpm(result: { ok: false; code?: string }): boole
     result.code === CLAWHUB_INSTALL_ERROR_CODE.PACKAGE_NOT_FOUND ||
     result.code === CLAWHUB_INSTALL_ERROR_CODE.VERSION_NOT_FOUND
   );
+}
+
+function appendClawHubRiskAcknowledgementGuidance(params: {
+  message: string;
+  spec: string | undefined;
+}): string {
+  if (!params.spec || !params.message.includes("--acknowledge-clawhub-risk")) {
+    return params.message;
+  }
+  const sanitizedSpec = sanitizeTerminalText(params.spec);
+  const shellSpec = shellQuotePosixArg(sanitizedSpec);
+  return `${params.message} To review and acknowledge this ClawHub package, run \`openclaw plugins install ${shellSpec} --acknowledge-clawhub-risk\` from a trusted shell, then rerun repair.`;
+}
+
+function shellQuotePosixArg(value: string): string {
+  if (/^[A-Za-z0-9_./:@%+=,-]+$/u.test(value)) {
+    return value;
+  }
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function isClawHubRiskAcknowledgementSkippedOutcome(outcome: {
+  status: string;
+  message: string;
+}): boolean {
+  return (
+    outcome.status === "skipped" &&
+    outcome.message.includes("ClawHub") &&
+    outcome.message.includes("--acknowledge-clawhub-risk")
+  );
+}
+
+function isClawHubDownloadBlockedSkippedOutcome(outcome: {
+  status: string;
+  code?: string;
+}): boolean {
+  return (
+    outcome.status === "skipped" &&
+    outcome.code === CLAWHUB_INSTALL_ERROR_CODE.CLAWHUB_DOWNLOAD_BLOCKED
+  );
+}
+
+function isActionableClawHubSkippedOutcome(outcome: {
+  status: string;
+  message: string;
+  code?: string;
+}): boolean {
+  return (
+    isClawHubRiskAcknowledgementSkippedOutcome(outcome) ||
+    isClawHubDownloadBlockedSkippedOutcome(outcome)
+  );
+}
+
+function recordClawHubInstallSpec(record: PluginInstallRecord | undefined): string | undefined {
+  if (!record || record.source !== "clawhub") {
+    return undefined;
+  }
+  if (record.spec) {
+    return record.spec;
+  }
+  if (record.clawhubPackage) {
+    return `clawhub:${record.clawhubPackage}`;
+  }
+  return undefined;
 }
 
 function resolveCandidateClawHubSpec(install: PluginPackageInstall): string | undefined {
@@ -589,14 +658,18 @@ async function installCandidate(params: {
   candidate: DownloadableInstallCandidate;
   records: Record<string, PluginInstallRecord>;
   updateChannel?: UpdateChannel;
+  acknowledgeClawHubRisk?: boolean;
+  onClawHubRisk?: (request: ClawHubRiskAcknowledgementRequest) => boolean | Promise<boolean>;
 }): Promise<{
   records: Record<string, PluginInstallRecord>;
   changes: string[];
+  notices: string[];
   warnings: string[];
 }> {
   const { candidate } = params;
   const extensionsDir = resolveDefaultPluginExtensionsDir();
   const changes: string[] = [];
+  const warnings: string[] = [];
   const clawhubSpecs = candidate.clawhubSpec
     ? resolveClawHubInstallSpecsForUpdateChannel({
         spec: candidate.clawhubSpec,
@@ -612,11 +685,18 @@ async function installCandidate(params: {
   const clawhubInstallSpec = clawhubSpecs?.installSpec ?? candidate.clawhubSpec;
   const npmInstallSpec = npmSpecs?.installSpec ?? candidate.npmSpec;
   if (clawhubInstallSpec && candidate.defaultChoice !== "npm") {
+    const clawhubInstallSpecLabel = sanitizeTerminalText(clawhubInstallSpec);
     const clawhubResult = await installPluginFromClawHub({
       spec: clawhubInstallSpec,
       extensionsDir,
       expectedPluginId: candidate.pluginId,
       mode: "install",
+      logger: {
+        terminalLinks: false,
+        warn: (message) => warnings.push(message),
+      },
+      ...(params.acknowledgeClawHubRisk ? { acknowledgeClawHubRisk: true } : {}),
+      ...(params.onClawHubRisk ? { onClawHubRisk: params.onClawHubRisk } : {}),
     });
     if (clawhubResult.ok) {
       const pluginId = clawhubResult.pluginId;
@@ -630,28 +710,40 @@ async function installCandidate(params: {
             installedAt: new Date().toISOString(),
           },
         },
-        changes: [`Installed missing configured plugin "${pluginId}" from ${clawhubInstallSpec}.`],
+        changes: [
+          `Installed missing configured plugin "${pluginId}" from ${clawhubInstallSpecLabel}.`,
+        ],
+        notices: warnings,
         warnings: [],
       };
     }
     if (!npmInstallSpec || !shouldFallbackClawHubToNpm(clawhubResult)) {
+      const failure = `Failed to install missing configured plugin "${candidate.pluginId}" from ${clawhubInstallSpecLabel}: ${clawhubResult.error}`;
       return {
         records: params.records,
         changes: [],
+        notices: [],
         warnings: [
-          `Failed to install missing configured plugin "${candidate.pluginId}" from ${clawhubInstallSpec}: ${clawhubResult.error}`,
+          ...warnings,
+          appendClawHubRiskAcknowledgementGuidance({
+            message: failure,
+            spec: clawhubInstallSpec,
+          }),
         ],
       };
     }
+    const npmInstallSpecLabel = sanitizeTerminalText(npmInstallSpec);
     changes.push(
-      `ClawHub ${clawhubInstallSpec} unavailable for "${candidate.pluginId}"; falling back to npm ${npmInstallSpec}.`,
+      `ClawHub ${clawhubInstallSpecLabel} unavailable for "${candidate.pluginId}"; falling back to npm ${npmInstallSpecLabel}.`,
     );
   }
   if (!npmInstallSpec) {
     return {
       records: params.records,
       changes: [],
+      notices: [],
       warnings: [
+        ...warnings,
         `Failed to install missing configured plugin "${candidate.pluginId}": missing npm spec.`,
       ],
     };
@@ -670,7 +762,9 @@ async function installCandidate(params: {
     return {
       records: params.records,
       changes: [],
+      notices: [],
       warnings: [
+        ...warnings,
         `Failed to install missing configured plugin "${candidate.pluginId}" from ${npmInstallSpec}: ${result.error}`,
       ],
     };
@@ -692,12 +786,14 @@ async function installCandidate(params: {
       ...changes,
       `Installed missing configured plugin "${pluginId}" from ${npmInstallSpec}.`,
     ],
+    notices: warnings,
     warnings: [],
   };
 }
 
 export type RepairMissingPluginInstallsResult = {
   changes: string[];
+  notices?: string[];
   warnings: string[];
   /**
    * The full install-record map after repair. Equal to the input
@@ -714,6 +810,8 @@ export type RepairMissingPluginInstallsResult = {
 export async function repairMissingConfiguredPluginInstalls(params: {
   cfg: OpenClawConfig;
   env?: NodeJS.ProcessEnv;
+  acknowledgeClawHubRisk?: boolean;
+  onClawHubRisk?: (request: ClawHubRiskAcknowledgementRequest) => boolean | Promise<boolean>;
   /**
    * Optional pre-seeded records. When provided, this map is used instead of
    * the disk-loaded install-record snapshot. Pass the in-memory records
@@ -729,6 +827,8 @@ export async function repairMissingConfiguredPluginInstalls(params: {
     pluginIds: collectConfiguredPluginIds(params.cfg, params.env),
     channelIds: collectConfiguredChannelIds(params.cfg, params.env),
     blockedPluginIds: collectBlockedPluginIds(params.cfg),
+    ...(params.acknowledgeClawHubRisk ? { acknowledgeClawHubRisk: true } : {}),
+    ...(params.onClawHubRisk ? { onClawHubRisk: params.onClawHubRisk } : {}),
     ...(params.baselineRecords ? { baselineRecords: params.baselineRecords } : {}),
   });
 }
@@ -740,6 +840,8 @@ export async function repairMissingPluginInstallsForIds(params: {
   blockedPluginIds?: Iterable<string>;
   env?: NodeJS.ProcessEnv;
   baselineRecords?: Record<string, PluginInstallRecord>;
+  acknowledgeClawHubRisk?: boolean;
+  onClawHubRisk?: (request: ClawHubRiskAcknowledgementRequest) => boolean | Promise<boolean>;
 }): Promise<RepairMissingPluginInstallsResult> {
   return repairMissingPluginInstalls({
     cfg: params.cfg,
@@ -757,6 +859,8 @@ export async function repairMissingPluginInstallsForIds(params: {
         .map((pluginId) => pluginId.trim())
         .filter((pluginId) => pluginId),
     ),
+    ...(params.acknowledgeClawHubRisk ? { acknowledgeClawHubRisk: true } : {}),
+    ...(params.onClawHubRisk ? { onClawHubRisk: params.onClawHubRisk } : {}),
     ...(params.baselineRecords ? { baselineRecords: params.baselineRecords } : {}),
   });
 }
@@ -768,6 +872,8 @@ async function repairMissingPluginInstalls(params: {
   blockedPluginIds?: ReadonlySet<string>;
   env?: NodeJS.ProcessEnv;
   baselineRecords?: Record<string, PluginInstallRecord>;
+  acknowledgeClawHubRisk?: boolean;
+  onClawHubRisk?: (request: ClawHubRiskAcknowledgementRequest) => boolean | Promise<boolean>;
 }): Promise<RepairMissingPluginInstallsResult> {
   const env = params.env ?? process.env;
   const snapshot = loadManifestMetadataSnapshot({
@@ -816,6 +922,7 @@ async function repairMissingPluginInstalls(params: {
       installRecords: records,
     });
   const changes: string[] = [];
+  const notices: string[] = [];
   const warnings: string[] = [];
   const deferredPluginIds = new Set<string>();
   const updateChannel = resolveRegistryUpdateChannel({
@@ -893,9 +1000,12 @@ async function repairMissingPluginInstalls(params: {
       pluginIds: missingRecordedPluginIds,
       updateChannel,
       logger: {
-        warn: (message) => warnings.push(message),
+        terminalLinks: false,
+        warn: (message) => notices.push(message),
         error: (message) => warnings.push(message),
       },
+      ...(params.acknowledgeClawHubRisk ? { acknowledgeClawHubRisk: true } : {}),
+      ...(params.onClawHubRisk ? { onClawHubRisk: params.onClawHubRisk } : {}),
     });
     for (const outcome of updateResult.outcomes) {
       if (outcome.status === "updated" || outcome.status === "unchanged") {
@@ -904,8 +1014,13 @@ async function repairMissingPluginInstalls(params: {
             ? `Repaired broken installed plugin "${outcome.pluginId}".`
             : `Repaired missing configured plugin "${outcome.pluginId}".`,
         );
-      } else if (outcome.status === "error") {
-        warnings.push(outcome.message);
+      } else if (outcome.status === "error" || isActionableClawHubSkippedOutcome(outcome)) {
+        warnings.push(
+          appendClawHubRiskAcknowledgementGuidance({
+            message: outcome.message,
+            spec: recordClawHubInstallSpec(nextRecords[outcome.pluginId]),
+          }),
+        );
       }
     }
     nextRecords = updateResult.config.plugins?.installs ?? nextRecords;
@@ -949,9 +1064,16 @@ async function repairMissingPluginInstalls(params: {
     if (hasUsableRecord) {
       continue;
     }
-    const installed = await installCandidate({ candidate, records: nextRecords, updateChannel });
+    const installed = await installCandidate({
+      candidate,
+      records: nextRecords,
+      updateChannel,
+      ...(params.acknowledgeClawHubRisk ? { acknowledgeClawHubRisk: true } : {}),
+      ...(params.onClawHubRisk ? { onClawHubRisk: params.onClawHubRisk } : {}),
+    });
     nextRecords = installed.records;
     changes.push(...installed.changes);
+    notices.push(...installed.notices);
     warnings.push(...installed.warnings);
   }
 
@@ -965,5 +1087,10 @@ async function repairMissingPluginInstalls(params: {
     // a stale snapshot.
     await writePersistedInstalledPluginIndexInstallRecords(nextRecords, { env });
   }
-  return { changes, warnings, records: nextRecords };
+  return {
+    changes,
+    ...(notices.length > 0 ? { notices } : {}),
+    warnings,
+    records: nextRecords,
+  };
 }
