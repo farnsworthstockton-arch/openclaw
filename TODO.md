@@ -13,4 +13,6 @@
 ## 🧑 Human / Blockers
 <!-- Auto-managed by CrewDeck (https://crew.146-190-119-77.sslip.io). These boxes stay in sync with the project's board: approve a task in CrewDeck and its box is ticked here; tick a box here and CrewDeck shows it done. Only these exact lines are auto-managed — edit anything else freely. -->
 - [ ] After ELI5.md is written, read it and check off each feature to confirm it actually works.
+- [ ] Decide where to run the customized OpenClaw gateway always-on (the machine Stockton actually uses it from).
+- [ ] Approve a recurring routine to pull upstream OpenClaw + reapply the CRE skill customizations so the fork stays current.
 
