@@ -1,14 +1,18 @@
 # TODO: openclaw
 
-**Last audited:** 2026-06-21 (TODO file created this session)
-**Status:** Not yet audited — start with the ELI5 task below.
+**Last updated:** 2026-07-09
+**Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
-## 🤖 Claude's tasks
-- [ ] **Create an `ELI5.md` for this project** — a plain-English "explain like I'm 5" file with three sections: **(1) What it is** — what this project actually does, in a short paragraph a non-technical person understands; **(2) Goals** — what it is for and what it is trying to achieve; **(3) Feature checklist** — every currently-implemented feature written as a checkable list (`- [ ]`), so Stockton can go down the list and confirm each one really exists and works, and so it is crystal clear exactly what is inside this project. Keep it jargon-free. _(Added 2026-06-21)_
+## Done
+- [x] **`ELI5.md` created** (2026-07-09 health sweep) — plain-English overview + a tick-list of the CRE skills for Stockton to verify.
+- [x] Added CRE skill modules (crexi-sync, cold-outreach, prospect-research, property-analysis, underwriting-intake, listing-marketing-plan, just-listed-announcement, market-update-content, showing-management, signback-tracker, realnex-crm-commands).
+- [x] Defaulted Anthropic provider to Opus.
+- [x] Fork wired to Stockton's own remote (`farnsworthstockton-arch/openclaw`) with `upstream` tracking the public project.
 
-## 👤 Stockton's tasks
-- [ ] Once `ELI5.md` exists, read it and check off each feature to confirm it actually works.
+## Next
+- [ ] Stockton: read `ELI5.md` and tick off each CRE skill to confirm it actually works.
+- [ ] Try each CRE skill end-to-end against a real listing/prospect once the gateway is running somewhere.
 
 ## 🧑 Human / Blockers
 <!-- Auto-managed by CrewDeck (https://crew.146-190-119-77.sslip.io). These boxes stay in sync with the project's board: approve a task in CrewDeck and its box is ticked here; tick a box here and CrewDeck shows it done. Only these exact lines are auto-managed — edit anything else freely. -->
