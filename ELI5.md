@@ -56,4 +56,7 @@ where his customizations are pushed — never back to the public project.
     customizations so the fork doesn't drift out of date.
 - **Config note:** there is a `.env.example` template at the repo root but no real `.env`
   yet — that's normal, since the gateway is configured per-machine as part of deciding where
-  to run it.
+  to run it. The template now lists every setting the CRE skills need (RealNex keys, your own
+  phone/email, n8n webhook URLs, Apollo, Google Calendar) with plain-English notes on where to
+  get each — so when you set up the machine, copy `.env.example` to `.env` and fill in the ones
+  for the skills you turn on.

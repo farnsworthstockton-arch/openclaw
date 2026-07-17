@@ -1,10 +1,23 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-09
+**Last updated:** 2026-07-17
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
+- [x] **CRE skill env-requirement audit + fix** (2026-07-17) — swept all 11 CRE skills for
+  env vars used in the skill body but missing from `requires.env` (the gateway's readiness
+  check only reads `requires.env`, so a missing var makes the skill report "ready" and then
+  fail silently). Found **3** with the bug — `cold-outreach`, `just-listed-announcement`,
+  `underwriting-intake` all insert `STOCKTON_PHONE` into messages sent to real prospects but
+  never declared it; without it, outreach/SMS/intake forms go out with a blank callback
+  number. Added `STOCKTON_PHONE` to all three. Other **8** skills clean; `HUNTER_API_KEY`
+  (prospect-research) left undeclared on purpose — it is a genuine optional Apollo fallback.
+  Verified: every `$VAR` used in a bash/curl block across all CRE skills is now declared.
+- [x] **Documented all CRE env vars in `.env.example`** (2026-07-17) — the template had **zero**
+  CRE vars, so the owner had no list of what to configure. Added a realtor-friendly section
+  covering all 10 (RealNex, Stockton contact details, n8n webhooks, Apollo/Hunter, Google
+  Calendar) with where to get each value.
 - [x] **`ELI5.md` created** (2026-07-09 health sweep) — plain-English overview + a tick-list of the CRE skills for Stockton to verify.
 - [x] Added CRE skill modules (crexi-sync, cold-outreach, prospect-research, property-analysis, underwriting-intake, listing-marketing-plan, just-listed-announcement, market-update-content, showing-management, signback-tracker, realnex-crm-commands).
 - [x] Defaulted Anthropic provider to Opus.
