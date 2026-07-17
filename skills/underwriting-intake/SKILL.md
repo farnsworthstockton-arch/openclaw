@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "📋",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "STOCKTON_TELEGRAM_CHAT_ID", "STOCKTON_EMAIL"] },
+        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "STOCKTON_TELEGRAM_CHAT_ID", "STOCKTON_EMAIL", "STOCKTON_PHONE"] },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }

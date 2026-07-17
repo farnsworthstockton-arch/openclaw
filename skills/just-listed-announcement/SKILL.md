@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "📣",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE"] },
+        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE", "STOCKTON_PHONE"] },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
