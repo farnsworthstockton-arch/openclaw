@@ -7,7 +7,16 @@ metadata:
     "openclaw":
       {
         "emoji": "✍️",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "STOCKTON_TELEGRAM_CHAT_ID"] },
+        "requires":
+          {
+            "env":
+              [
+                "REALNEX_API_KEY",
+                "REALNEX_BASE_URL",
+                "STOCKTON_TELEGRAM_CHAT_ID",
+                "STOCKTON_PHONE",
+              ],
+          },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
@@ -36,12 +45,14 @@ Eliminate dropped balls on signbacks. The agent tracks every outstanding signatu
 ## Steps
 
 1. **Pull all active transactions** from RealNex:
+
    ```bash
    curl "$REALNEX_BASE_URL/transactions?status=active" \
      -H "Authorization: Bearer $REALNEX_API_KEY"
    ```
 
 2. **For each transaction**, pull the document checklist and signature status:
+
    ```bash
    curl "$REALNEX_BASE_URL/transactions/[deal_id]/documents" \
      -H "Authorization: Bearer $REALNEX_API_KEY"
@@ -55,6 +66,7 @@ Eliminate dropped balls on signbacks. The agent tracks every outstanding signatu
    c. Send a reminder message:
 
    **Email reminder:**
+
    ```
    Subject: Action Required: [Document Name] — [Property Address]
 
@@ -72,11 +84,13 @@ Eliminate dropped balls on signbacks. The agent tracks every outstanding signatu
    ```
 
    **SMS reminder (if phone on file, 160 chars max):**
+
    ```
    Reminder: [Doc Name] needs your signature for [short address]. Sent [N] days ago. Questions? Call Stockton: [phone]
    ```
 
 5. **Log the reminder** in the RealNex transaction record:
+
    ```bash
    curl -X POST "$REALNEX_BASE_URL/transactions/[deal_id]/notes" \
      -H "Authorization: Bearer $REALNEX_API_KEY" \
@@ -91,6 +105,7 @@ Eliminate dropped balls on signbacks. The agent tracks every outstanding signatu
 6. **Check for fully-executed transactions**: any deal where all required documents now have `status: executed`.
 
 7. **For fully-executed deals**, alert Stockton via Telegram:
+
    ```
    All docs executed ✓ — [Property Address]
    Transaction is fully signed. Deal: [deal_id]
@@ -125,6 +140,7 @@ No overdue signature items exist without a reminder having been sent within the 
 
 ## Utah/Stockton RE Notes
 
+- Stockton's callback number for the `[phone]` in reminder emails/SMS: pull from env var `STOCKTON_PHONE`
 - Standard signback window for Utah CRE: 24 hours (send reminder), 48 hours (escalate to Stockton)
 - Overdue defined as: `sent_at` timestamp > 24 hours ago with `status != executed`
 - Key document types to track: PSA, Counter Offers, Addenda, Seller Disclosures, Assignment Agreements, Title Approval
