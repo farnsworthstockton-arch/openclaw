@@ -24,6 +24,14 @@
       `[phone]` must declare `STOCKTON_PHONE`). Proved the guard fails on the pre-fix frontmatter and
       passes after. Suite: 65 tests green (was 52). `[email]` deliberately NOT guarded — it also appears
       as a prospect-lookup query param (`&email=[email]`), so it isn't reliably Stockton's address.
+- [x] **Checked the reverse over-gating class, left as-is** (2026-07-18) — also audited whether any
+      skill declares a genuinely _optional_ var as required (which would make the gateway report the skill
+      "not ready" and refuse to run even when its core path works). `prospect-research` requires
+      `APOLLO_API_KEY`, and Apollo is only an email-enrichment step (the skill still builds and logs the
+      prospect list without it, per its own Error Handling). Deliberately NOT changed: this over-gating
+      fails _loudly and safely_ (owner sees the missing key) — the opposite of the silent-failure class —
+      and a prior session made the required/optional split on purpose (Apollo required, Hunter optional).
+      Loosening it could instead let the skill silently ship emailless lists. Conservative call: leave it.
 - [x] **CRE frontmatter guard test committed** (2026-07-18) — a prior session left
       `src/agents/skills.cre-skills-frontmatter.test.ts` in the working tree uncommitted; verified it
       passes and committed it (turns the manual `requires.env` audits into a permanent regression guard).
