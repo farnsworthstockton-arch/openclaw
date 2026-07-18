@@ -5,6 +5,25 @@
 **Path:** openclaw
 
 ## Done
+- [x] **Property-analysis deal-summary formatting fix** (2026-07-18) — the deal summary
+  Stockton reads on Telegram before every call (`property-analysis` skill, step 6) used a
+  fixed-width `================` ASCII underline under every section header. The underline
+  never matched the header text length (e.g. `QUICK TAKE` is 10 characters but got a
+  16-character underline; `COMPARABLES (last 24 months, [radius])` is 39 characters and got
+  the same 16), so every generated report renders with ragged, mismatched banners — a visible
+  formatting bug in a document Stockton reads on every single deal. It was also the only skill
+  using this ASCII-banner style: every other CRE skill's Telegram output (crexi-sync,
+  underwriting-intake, signback-tracker, market-update-content) uses a short title line,
+  optional ✓, blank line, then `Label: value` pairs and `•` bullets for lists — property-analysis
+  was the one screen disagreeing with that established house style. Rewrote the template to
+  match: `🏗️ PROPERTY ANALYSIS — [address]` title (reusing the skill's own emoji), no ASCII
+  banners, `•` bullets for the comps list (also more correct — comps aren't ranked, so numbering
+  them implied an ordering that wasn't real). Verified no other code/tests reference the old
+  literal strings (`grep` across the repo, zero hits) so nothing else depends on the old format.
+  **Could not verify visually** — I'm headless and this repo's gateway isn't running always-on
+  yet (see Human/Blockers below), so I read the template as text and reasoned about how it
+  renders on a phone; I did not see it rendered in an actual Telegram message. Once the gateway
+  is live, run property-analysis once for real and eyeball the message.
 - [x] **Outreach/marketing copy compliance pass** (2026-07-18) — the automated marketing
   emails (cold-outreach 3-touch, just-listed blast, Monday market update) had **no opt-out
   language and no mailing address** — both are required on commercial email by CAN-SPAM, and

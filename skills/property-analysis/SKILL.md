@@ -84,34 +84,28 @@ When evaluating a potential listing, acquisition, or client inquiry, Stockton ca
 6. **Produce the deal summary** in plain English:
 
    ```
-   PROPERTY SUMMARY
-   ================
-   Address: [full address]
+   🏗️ PROPERTY ANALYSIS — [full address]
+
    Type: [property type] | Zoning: [zone code + allowed uses]
-   Size: [sq ft] | Lot: [acres]
-   Year Built: [year] | Owner: [name]
+   Size: [sq ft] | Lot: [acres] | Year built: [year]
+   Owner: [name]
 
-   ASKING / PRICING
-   ================
-   Asking Price: $[price] ($[price/sqft]/SF)
-   Listed Cap Rate: [X]% | Listed NOI: $[Y]
-   Est. Cap Rate (market basis): [X]%
-   Days on Market: [N]
+   PRICING
+   Asking: $[price] ($[price/sqft]/SF)
+   Listed cap rate: [X]% | Listed NOI: $[Y]
+   Est. cap rate (market basis): [X]%
+   Days on market: [N]
 
-   COMPARABLES (last 24 months, [radius])
-   ================
-   1. [Address] — $[price] ($[$/SF]) — [date]
-   2. [Address] — $[price] ($[$/SF]) — [date]
-   3. [Address] — $[price] ($[$/SF]) — [date]
+   COMPARABLES — last 24 months, [radius]
+   • [Address] — $[price] ($[$/SF]) — [date]
+   • [Address] — $[price] ($[$/SF]) — [date]
+   • [Address] — $[price] ($[$/SF]) — [date]
    Avg comp: $[$/SF]
 
-   MARKET RENTS (submarket)
-   ================
-   Avg asking rent: $[X]/SF NNN
-   Vacancy trend: [improving / stable / increasing]
+   MARKET RENTS — [submarket]
+   Avg asking rent: $[X]/SF NNN | Vacancy trend: [improving / stable / increasing]
 
    QUICK TAKE
-   ================
    [2-3 sentences: Is this priced at, above, or below market? What's the opportunity or concern?
     Example: "Priced at $142/SF against comps averaging $128/SF — a 10% premium. Listed cap rate of 5.2% 
     looks tight vs. market basis of ~5.8%. Seller may have room to move, or this deal may sit."]
