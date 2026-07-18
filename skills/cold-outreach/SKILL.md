@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "📬",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "STOCKTON_EMAIL", "STOCKTON_PHONE", "STOCKTON_TELEGRAM_CHAT_ID"] },
+        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "STOCKTON_EMAIL", "STOCKTON_PHONE", "STOCKTON_MAILING_ADDRESS", "STOCKTON_TELEGRAM_CHAT_ID"] },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
@@ -60,6 +60,9 @@ Turn a prospect list into active conversations. Each prospect gets a relevant fi
 
    Stockton Farnsworth | Stockton Real Estate
    [phone]
+   [mailing address]
+
+   P.S. If you'd rather not hear from me again, just say so — I'll close the file, no hard feelings.
    ```
 
    For **active investors**:
@@ -76,6 +79,9 @@ Turn a prospect list into active conversations. Each prospect gets a relevant fi
 
    Stockton Farnsworth | Stockton Real Estate
    [phone]
+   [mailing address]
+
+   P.S. If you'd rather not hear from me again, just say so — I'll close the file, no hard feelings.
    ```
 
 3. **Write the LINKEDIN CONNECTION REQUEST** (under 300 characters):
@@ -92,9 +98,10 @@ Turn a prospect list into active conversations. Each prospect gets a relevant fi
 
    Quick version: I'm tracking [property type] activity in [area], and your name came up. If there's ever a time you'd want to know what the market looks like for your specific situation, I'm an easy phone call.
 
-   Happy to make it worth your time.
+   And if you'd rather I drop it, a one-word reply does the job.
 
    Stockton Farnsworth | [phone]
+   [mailing address]
    ```
 
 5. **Write the FINAL FOLLOW-UP** (Day 12, last attempt):
@@ -111,6 +118,7 @@ Turn a prospect list into active conversations. Each prospect gets a relevant fi
 
    Stockton Farnsworth | Stockton Real Estate
    [phone]
+   [mailing address]
    ```
 
 6. **Schedule all messages** in the n8n outreach sequence:
@@ -165,7 +173,9 @@ All outreach sequences are scheduled. Day 1 messages have been sent. RealNex sho
 ## Utah/Stockton RE Notes
 
 - Tone: professional, not pushy. Expert positioning only. Never use: "I can help you sell", "I can get you top dollar", generic sales language.
-- Stockton phone in env var `STOCKTON_PHONE`; email in `STOCKTON_EMAIL`
+- Every automated email carries the brokerage mailing address under the signature and an easy way to say "no more" (the P.S. on Day 1, the one-word-reply line on Day 5; Day 12 is the last email by design). Commercial email law (CAN-SPAM) requires both the address and an opt-out — and a visible easy out reads as confident, not spammy.
+- Stockton phone in env var `STOCKTON_PHONE`; email in `STOCKTON_EMAIL`; brokerage mailing address in `STOCKTON_MAILING_ADDRESS`
+- Any reply that declines — even a casual "no thanks" — counts as an opt-out: set `do_not_contact: true` and stop the sequence, same as an unsubscribe.
 - "Do Not Contact" list must be checked before every send (pull from RealNex `do_not_contact` field)
 - Off-market owner outreach: reference the specific property address — this proves you know their asset, not just a mass blast
 - Investor outreach: reference their specific investment area or company from their LinkedIn profile

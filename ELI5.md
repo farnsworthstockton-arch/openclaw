@@ -44,6 +44,8 @@ where his customizations are pushed — never back to the public project.
 - [ ] `market-update-content` — generate market-update content
 - [ ] `showing-management` — manage property showings
 - [ ] `signback-tracker` — track sign-backs
+- [ ] `content-repurposing` — turn one piece of content (video, notes, voice memo) into posts for every platform
+- [ ] `pdf-document-processing` — read and file deal PDFs (feeds the sign-back tracker)
 
 ## Current status
 - **Working fork, actively maintained.** It stays in sync with the upstream OpenClaw project
@@ -57,6 +59,7 @@ where his customizations are pushed — never back to the public project.
 - **Config note:** there is a `.env.example` template at the repo root but no real `.env`
   yet — that's normal, since the gateway is configured per-machine as part of deciding where
   to run it. The template now lists every setting the CRE skills need (RealNex keys, your own
-  phone/email, n8n webhook URLs, Apollo, Google Calendar) with plain-English notes on where to
-  get each — so when you set up the machine, copy `.env.example` to `.env` and fill in the ones
-  for the skills you turn on.
+  phone/email, your office mailing address for email footers, n8n webhook URLs, Apollo, Google
+  Calendar, a folder for filing deal PDFs) with plain-English notes on where to get each — so
+  when you set up the machine, copy `.env.example` to `.env` and fill in the ones for the
+  skills you turn on.

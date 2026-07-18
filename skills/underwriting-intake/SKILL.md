@@ -175,7 +175,7 @@ Prospect has received the intake form. Upon response: RealNex contact record is 
 
 ## Error Handling
 
-- Prospect does not respond to intake form within 48 hours → Send one gentle follow-up: "Just checking if my questions came through — happy to answer by phone instead. [Stockton phone]"
+- Prospect does not respond to intake form within 48 hours → Send one gentle follow-up: "Just making sure my questions came through — if it's easier, call or text me and we'll cover them in two minutes. [Stockton phone]"
 - Incomplete intake (some questions unanswered) → Structure the profile with the available data. Mark incomplete fields as `unknown`. Brief Stockton anyway and flag: "Partial intake — [list missing fields]. Ask during your first call."
 - No email on file (phone only) → Send intake as SMS (condensed to fit message limits). Flag to Stockton that the response will come by text.
 

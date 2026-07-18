@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "📣",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE", "STOCKTON_PHONE"] },
+        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE", "STOCKTON_PHONE", "STOCKTON_MAILING_ADDRESS"] },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
@@ -57,6 +57,7 @@ The moment a new listing is confirmed, generate ready-to-send email copy and soc
    - Market context: 1-2 sentences on why this submarket is strong right now
    - CTA: "Reply to this email or call/text Stockton Farnsworth directly at [phone]"
    - Listing link
+   - Footer (required — this is a list send): brokerage mailing address (`STOCKTON_MAILING_ADDRESS`) and one plain line: "You're receiving this because you asked for Utah CRE deal flow. Reply 'unsubscribe' anytime and I'll take you off the list."
 
 3. **Write FACEBOOK caption** (conversational, Utah local business/investor audience, 100-200 words):
    - Conversational tone ("Just listed a great one...")
@@ -72,8 +73,9 @@ The moment a new listing is confirmed, generate ready-to-send email copy and soc
 5. **Write X/TWITTER post** (under 280 characters, punchy):
    - Format: "[Property type] just hit the market in [city]. [Key metric]. [1-line hook]. Link: [url]"
 
-6. **Write SMS BLAST** (160 characters max):
-   - Format: "New listing: [type], [city], [size]SF, $[price]. [Cap rate]% cap. Details: [short url] -Stockton RE"
+6. **Write SMS BLAST** (160 characters max, including the opt-out):
+   - Format: "New listing: [type], [city], [size]SF, $[price]. [Cap rate]% cap. [short url] -Stockton RE. Reply STOP to opt out"
+   - "Reply STOP to opt out" is not optional — carriers filter marketing texts without it, and the blast silently dies.
 
 7. **Queue all content** into the n8n social posting schedule:
    ```bash
@@ -115,5 +117,7 @@ All 5 content pieces are written, formatted, and confirmed-queued in the n8n wor
 
 - SEO keywords to work in naturally: Utah commercial real estate, Salt Lake CRE, Utah industrial, Utah County commercial, [city] commercial property for sale
 - Stockton's phone for CTAs: include in email and SMS — pull from env var `STOCKTON_PHONE`
+- Brokerage mailing address for the email footer: env var `STOCKTON_MAILING_ADDRESS` (CAN-SPAM requires it on every list email)
+- SMS "STOP" replies and email "unsubscribe" replies: set `do_not_contact: true` in RealNex and drop the contact from the send segment before the next blast
 - Investor list in RealNex segments: `investor_list` (primary), `prospect_industrial`, `prospect_retail`, `prospect_land`
 - Cap rate benchmarks for context language: Industrial 5.0-6.5%, Retail 5.5-7.0%, Land (varies)
