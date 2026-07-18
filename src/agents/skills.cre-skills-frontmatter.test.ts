@@ -101,10 +101,17 @@ describe("CRE skill frontmatter", () => {
   // skills is Stockton's own callback number, dropped into emails/SMS sent to
   // real third parties (prospects, buyers, sellers, attorneys). If the backing
   // env var isn't in `requires.env` the gateway still reports the skill ready,
-  // and the message goes out with a blank number. `[email]` is intentionally
-  // NOT guarded here: it also appears as a prospect-lookup query param
-  // (`&email=[email]`), so it isn't reliably Stockton's address.
-  const PLACEHOLDER_ENV: ReadonlyArray<[RegExp, string]> = [[/\[phone\]/i, "STOCKTON_PHONE"]];
+  // and the message goes out with a blank number — or, for the mailing-address
+  // footer, a blank CAN-SPAM footer on a list email (a compliance failure, not
+  // just a cosmetic one). `[email]` is intentionally NOT guarded: it also
+  // appears as a prospect-lookup query param (`&email=[email]`), so it isn't
+  // reliably Stockton's address. `[phone]` and `[mailing address]` are
+  // unambiguous — every occurrence across the CRE skills is Stockton's own
+  // (property contexts use the capitalized `[Address]`).
+  const PLACEHOLDER_ENV: ReadonlyArray<[RegExp, string]> = [
+    [/\[phone\]/i, "STOCKTON_PHONE"],
+    [/\[mailing address\]/i, "STOCKTON_MAILING_ADDRESS"],
+  ];
 
   it.each(CRE_SKILLS)("%s declares the env var behind every contact placeholder", async (name) => {
     const raw = await readSkill(name);
