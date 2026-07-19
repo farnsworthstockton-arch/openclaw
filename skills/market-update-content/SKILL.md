@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "📊",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE"] },
+        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE", "STOCKTON_PHONE", "STOCKTON_MAILING_ADDRESS"] },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
@@ -56,6 +56,7 @@ Stockton stays top-of-mind with his investor list with a consistent weekly marke
    - What It Means for Investors (75 words): Translate the data — buy signal, hold, watch a specific submarket?
    - Featured Listing (75 words): One active listing from the portfolio, tied to the market narrative
    - CTA: "Reply with questions or to schedule a call. | [Stockton phone]"
+   - Footer (required — this is a list send): brokerage mailing address (`STOCKTON_MAILING_ADDRESS`) and one plain line: "You're getting this weekly update because you're on my Utah CRE list. Reply 'unsubscribe' anytime and I'll take you off."
 
 4. **Create social versions** using the content-repurposing skill output structure:
    - LinkedIn: professional market analysis tone, 150-200 words
@@ -115,4 +116,6 @@ All content written, queued in n8n, and Telegram confirmation sent to Stockton b
 - Cap rate benchmarks: Industrial 5.0-6.5%, Retail 5.5-7.0% — note if trending up or down
 - Investor list send time: Monday 9:00 AM MT performs best for CRE audience
 - Email list segment: `investor_list` in RealNex
+- CTA phone from env var `STOCKTON_PHONE`; footer mailing address from `STOCKTON_MAILING_ADDRESS` (CAN-SPAM requires the address + an opt-out on every list email)
+- "Unsubscribe" replies: set `do_not_contact: true` in RealNex and remove from `investor_list` before next Monday's send
 - QTS/geothermal deals and Elko County matters are human-only — do not reference these in the public market update
