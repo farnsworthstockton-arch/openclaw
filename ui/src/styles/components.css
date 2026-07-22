@@ -586,6 +586,10 @@
   flex-shrink: 0;
 }
 
+.skill-toggle:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .skill-toggle::after {
   content: "";
   position: absolute;
@@ -3838,6 +3842,10 @@ td.data-table-key-col {
   color: var(--text);
   font-size: 15px;
   outline: none;
+}
+
+.cmd-palette__input:focus-visible {
+  box-shadow: inset 0 -2px 0 var(--ring);
 }
 
 .cmd-palette__input::placeholder {
