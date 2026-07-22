@@ -6,6 +6,16 @@
 
 ## Done
 
+- [x] **Config number-stepper input missing focus indicator** (2026-07-22) — follow-up
+      visual/accessibility pass over `ui/src/styles/config.css`. `.cfg-number__input` (the
+      numeric text field inside the increment/decrement stepper used for numeric config
+      fields) set `outline: none` with no focus replacement, unlike every sibling `.cfg-*`
+      input (`.cfg-input`, `.cfg-textarea`, `.cfg-select`) which all pair `outline: none`
+      with a focus rule using `--focus-ring`. Because the input itself has `border: none`
+      (only its container draws borders), there was zero visual indication of focus at all —
+      mouse or keyboard. Added `.cfg-number:focus-within` on the container (border-color:
+      var(--accent) + box-shadow: var(--focus-ring)), matching the pattern used by sibling
+      inputs. Verified `vite build` still succeeds.
 - [x] **Control UI keyboard focus indicators restored on skill toggle and command palette**
       (2026-07-22) — visual/accessibility pass over `ui/`. `.skill-toggle` (the on/off switch
       in the skills list) and `.cmd-palette__input` (the ⌘K search box) both set
