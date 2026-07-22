@@ -1,11 +1,24 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-23
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
 
+- [x] **Contact-placeholder guard missed the `[Stockton phone]` spelling variant** (2026-07-23) —
+      `src/agents/skills.cre-skills-frontmatter.test.ts`'s regression guard (added to permanently
+      close the "env var used only as a prose placeholder → gateway reports skill ready → message
+      goes out blank" bug class, hit 5 times per the entries below) only matched the literal
+      `[phone]` placeholder. `underwriting-intake` and `market-update-content` spell it
+      `[Stockton phone]` instead, so the guard's regex (`/\[phone\]/i`) never matched their bodies
+      at all — both skills currently declare `STOCKTON_PHONE` correctly, so nothing is broken
+      today, but the guard built specifically to prevent this class from recurring had a blind
+      spot: a future edit dropping `STOCKTON_PHONE` from either skill would stay green. Widened
+      the regex to `/\[(?:stockton )?phone\]/i` to match both spellings. Verified the guard now
+      fails when `STOCKTON_PHONE` is stripped from `requires.env` (4 tests fail) and passes again
+      once restored — proving the fix actually closes the gap rather than just adding a
+      no-op case. Suite: 66 tests green (was 65).
 - [x] **Config number-stepper input missing focus indicator** (2026-07-22) — follow-up
       visual/accessibility pass over `ui/src/styles/config.css`. `.cfg-number__input` (the
       numeric text field inside the increment/decrement stepper used for numeric config

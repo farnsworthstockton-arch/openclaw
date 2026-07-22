@@ -97,19 +97,22 @@ describe("CRE skill frontmatter", () => {
 
   // Contact details reach these skills as HUMAN placeholders (`[phone]`), not
   // `$VAR` shell refs, so the check above — and the prior manual `$VAR`-only
-  // audits — are structurally blind to them. Every `[phone]` across the CRE
-  // skills is Stockton's own callback number, dropped into emails/SMS sent to
-  // real third parties (prospects, buyers, sellers, attorneys). If the backing
-  // env var isn't in `requires.env` the gateway still reports the skill ready,
-  // and the message goes out with a blank number — or, for the mailing-address
-  // footer, a blank CAN-SPAM footer on a list email (a compliance failure, not
-  // just a cosmetic one). `[email]` is intentionally NOT guarded: it also
-  // appears as a prospect-lookup query param (`&email=[email]`), so it isn't
-  // reliably Stockton's address. `[phone]` and `[mailing address]` are
-  // unambiguous — every occurrence across the CRE skills is Stockton's own
-  // (property contexts use the capitalized `[Address]`).
+  // audits — are structurally blind to them. Every `[phone]` / `[Stockton
+  // phone]` across the CRE skills is Stockton's own callback number, dropped
+  // into emails/SMS sent to real third parties (prospects, buyers, sellers,
+  // attorneys). If the backing env var isn't in `requires.env` the gateway
+  // still reports the skill ready, and the message goes out with a blank
+  // number — or, for the mailing-address footer, a blank CAN-SPAM footer on a
+  // list email (a compliance failure, not just a cosmetic one). `[email]` is
+  // intentionally NOT guarded: it also appears as a prospect-lookup query
+  // param (`&email=[email]`), so it isn't reliably Stockton's address.
+  // `[phone]` / `[Stockton phone]` and `[mailing address]` are unambiguous —
+  // every occurrence across the CRE skills is Stockton's own (property
+  // contexts use the capitalized `[Address]`). underwriting-intake and
+  // market-update-content spell it `[Stockton phone]` rather than `[phone]`
+  // — match both so the guard doesn't miss either variant.
   const PLACEHOLDER_ENV: ReadonlyArray<[RegExp, string]> = [
-    [/\[phone\]/i, "STOCKTON_PHONE"],
+    [/\[(?:stockton )?phone\]/i, "STOCKTON_PHONE"],
     [/\[mailing address\]/i, "STOCKTON_MAILING_ADDRESS"],
   ];
 
