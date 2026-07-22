@@ -6,6 +6,16 @@
 
 ## Done
 
+- [x] **Control UI keyboard focus indicators restored on skill toggle and command palette**
+      (2026-07-22) — visual/accessibility pass over `ui/`. `.skill-toggle` (the on/off switch
+      in the skills list) and `.cmd-palette__input` (the ⌘K search box) both set
+      `outline: none` with no replacement, unlike every other interactive control in
+      `components.css`, which pairs `outline: none` with a `:focus-visible` box-shadow using
+      the `--focus-ring` token. Keyboard users tabbing to either control got no visible focus
+      state. Added matching `:focus-visible` rules (`--focus-ring` for the toggle, an inset
+      ring for the palette input). Verified `vite build` still succeeds. Surveyed the rest of
+      `components.css`'s `outline: none` usages — the others already have a focus-visible
+      replacement, so this closes out the gap.
 - [x] **Weekly market update daylight-saving scheduling fix** (2026-07-22) — the Monday
       market update encoded 9:00 AM as `09:00:00-07:00`. Utah switches to `-06:00` during
       daylight saving time, so the workflow would send at 10:00 AM local for most of the year.
