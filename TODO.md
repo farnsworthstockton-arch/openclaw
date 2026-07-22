@@ -1,10 +1,17 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-18
+**Last updated:** 2026-07-22
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
+
+- [x] **Weekly market update daylight-saving scheduling fix** (2026-07-22) — the Monday
+      market update encoded 9:00 AM as `09:00:00-07:00`. Utah switches to `-06:00` during
+      daylight saving time, so the workflow would send at 10:00 AM local for most of the year.
+      The skill now requires conversion from `America/Denver` to ISO 8601 and explicitly covers
+      both MST and MDT. Added a regression test that requires the IANA time zone and rejects a
+      hard-coded 9:00 AM Mountain offset.
 
 - [x] **signback-tracker missing STOCKTON_PHONE — 5th (and final) instance of the blank-callback
       bug + permanent guard** (2026-07-18) — `signback-tracker` sends signature-reminder **emails and

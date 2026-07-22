@@ -128,4 +128,11 @@ describe("CRE skill frontmatter", () => {
         missing.join(", "),
     ).toEqual([]);
   });
+
+  it("market update schedules in Utah local time without a fixed UTC offset", async () => {
+    const body = skillBody(await readSkill("market-update-content"));
+
+    expect(body).toContain("America/Denver");
+    expect(body).not.toMatch(/T09:00:00-0[67]:00/);
+  });
 });

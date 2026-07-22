@@ -7,7 +7,17 @@ metadata:
     "openclaw":
       {
         "emoji": "📊",
-        "requires": { "env": ["REALNEX_API_KEY", "REALNEX_BASE_URL", "N8N_WEBHOOK_SOCIAL_QUEUE", "STOCKTON_PHONE", "STOCKTON_MAILING_ADDRESS"] },
+        "requires":
+          {
+            "env":
+              [
+                "REALNEX_API_KEY",
+                "REALNEX_BASE_URL",
+                "N8N_WEBHOOK_SOCIAL_QUEUE",
+                "STOCKTON_PHONE",
+                "STOCKTON_MAILING_ADDRESS",
+              ],
+          },
         "primaryEnv": "REALNEX_API_KEY",
       },
   }
@@ -40,10 +50,12 @@ Stockton stays top-of-mind with his investor list with a consistent weekly marke
    - Pull 3-5 data points: cap rate trends, vacancy rates by property type, notable recent transactions, demand/supply indicators
 
 2. **Select the featured listing** from RealNex:
+
    ```bash
    curl "$REALNEX_BASE_URL/properties?status=active&sort=created_at:desc&limit=5" \
      -H "Authorization: Bearer $REALNEX_API_KEY"
    ```
+
    Select the listing that best matches current market conditions or has been on market longest without a featured mention.
 
 3. **Draft the INVESTOR EMAIL UPDATE** (300 words, market-focused):
@@ -65,6 +77,7 @@ Stockton stays top-of-mind with his investor list with a consistent weekly marke
    - X/Twitter: sharpest single insight under 280 chars
 
 5. **Queue everything** into the n8n social posting schedule:
+
    ```bash
    curl -X POST "$N8N_WEBHOOK_SOCIAL_QUEUE" \
      -H "Content-Type: application/json" \
@@ -77,7 +90,7 @@ Stockton stays top-of-mind with his investor list with a consistent weekly marke
        "instagram": { "caption": "...", "hashtags": "..." },
        "twitter": "...",
        "featured_listing_id": "...",
-       "scheduled_send": "[monday_date_iso]T09:00:00-07:00"
+       "scheduled_send": "[Monday 9:00 AM converted with the America/Denver time zone to ISO 8601]"
      }'
    ```
 
@@ -102,6 +115,9 @@ Stockton stays top-of-mind with his investor list with a consistent weekly marke
 ## Definition of Done
 
 All content written, queued in n8n, and Telegram confirmation sent to Stockton by 8:00 AM MT on Monday.
+
+Use the `America/Denver` time zone when calculating both deadlines. Do not hard-code a UTC
+offset: Utah is `-07:00` during standard time and `-06:00` during daylight saving time.
 
 ## Error Handling
 
