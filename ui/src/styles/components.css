@@ -4029,8 +4029,8 @@ td.data-table-key-col {
 }
 
 .ov-attention-item.warn {
-  border-color: var(--warning-subtle, rgba(234, 179, 8, 0.2));
-  background: rgba(234, 179, 8, 0.05);
+  border-color: var(--warn-subtle);
+  background: var(--warn-subtle);
 }
 
 .ov-attention-item.danger {

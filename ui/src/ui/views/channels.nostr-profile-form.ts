@@ -284,7 +284,7 @@ export function renderNostrProfileForm(params: {
 
       ${isDirty
         ? html`
-            <div style="font-size: 12px; color: var(--warning, #d97706); margin-top: 8px">
+            <div style="font-size: 12px; color: var(--warn); margin-top: 8px">
               ${t("common.unsavedChanges")}
             </div>
           `
