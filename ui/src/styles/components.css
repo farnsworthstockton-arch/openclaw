@@ -4328,6 +4328,11 @@ details[open] > .ov-expandable-toggle::after {
   background: var(--bg-muted);
 }
 
+.ov-log-refresh:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
   .ov-bottom-grid {
     grid-template-columns: 1fr;

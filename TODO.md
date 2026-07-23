@@ -1,10 +1,21 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-24 (visual pass)
+**Last updated:** 2026-07-24 (visual pass, cont'd)
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
+
+- [x] **Overview log-tail refresh icon: keyboard-inaccessible, no aria-label** (2026-07-24
+      visual pass) — swept remaining `@click`-only elements across `ui/src/ui/views/*.ts` for the
+      same bug class fixed in prior passes (usage bars, sessions/skills/cron rows, wiki modal) and
+      found one more: `overview-log-tail.ts`'s refresh icon is a bare `<span @click>` nested inside
+      a `<summary>` (the "Gateway Logs" details toggle), so it was mouse-only and, worse, clicking
+      it without the `stopPropagation` guard would also fire the parent's expand/collapse. Added
+      `role="button"`, `tabindex="0"`, `aria-label`, and an Enter/Space `@keydown` handler
+      (mirroring the click handler's `preventDefault`/`stopPropagation`), a new
+      `overview.logTail.refresh` i18n string, and a `:focus-visible` outline in
+      `ui/src/styles/components.css`. Verified `pnpm --filter ./ui build` still succeeds.
 
 - [x] **Dreams diary wiki-preview modal: no Escape-to-close, missing dialog semantics**
       (2026-07-24) — visual/a11y pass swept `ui/src/ui/views/*.ts` for `<div @click>` handlers

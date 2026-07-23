@@ -31,10 +31,20 @@ export function renderOverviewLogTail(props: OverviewLogTailProps) {
         <span class="ov-count-badge">${props.lines.length}</span>
         <span
           class="ov-log-refresh"
+          role="button"
+          tabindex="0"
+          aria-label=${t("overview.logTail.refresh")}
           @click=${(e: Event) => {
             e.preventDefault();
             e.stopPropagation();
             props.onRefreshLogs();
+          }}
+          @keydown=${(e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              props.onRefreshLogs();
+            }
           }}
           >${icons.loader}</span
         >
