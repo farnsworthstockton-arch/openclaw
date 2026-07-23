@@ -123,7 +123,7 @@ export function renderNostrCard(params: {
 
     return html`
       <div
-        style="margin-top: 16px; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md);"
+        style="margin-top: 16px; padding: 12px; background: var(--bg-elevated); border-radius: var(--radius-md);"
       >
         <div
           style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;"
@@ -150,7 +150,7 @@ export function renderNostrCard(params: {
                         <img
                           src=${picture}
                           alt=${t("channels.nostr.profilePicture")}
-                          style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);"
+                          style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);"
                           @error=${(e: Event) => {
                             (e.target as HTMLImageElement).style.display = "none";
                           }}
@@ -183,7 +183,7 @@ export function renderNostrCard(params: {
               </div>
             `
           : html`
-              <div style="color: var(--text-muted); font-size: 13px">
+              <div style="color: var(--muted); font-size: 13px">
                 ${t("channels.nostr.noProfile")} ${t("channels.nostr.noProfileHint")}
               </div>
             `}

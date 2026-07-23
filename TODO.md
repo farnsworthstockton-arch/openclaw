@@ -6,6 +6,19 @@
 
 ## Done
 
+- [x] **Nostr channel UI referenced undefined CSS custom properties** (2026-07-23) —
+      visual pass over `ui/src/ui/views/channels.nostr.ts` and
+      `channels.nostr-profile-form.ts`. Both files styled inputs, textareas, avatar
+      previews, and section dividers with `var(--border-color)`, `var(--text-muted)`,
+      `var(--danger-color)`, and `var(--bg-secondary)` — none of which are defined
+      anywhere in `ui/src/styles/*.css` (the real tokens are `--border`, `--muted`,
+      `--danger`, `--bg-elevated`). An unresolved custom property with no fallback
+      makes the whole CSS property invalid, so these elements silently rendered with
+      no border, default (black) text color, and no background in both light and dark
+      themes — a regression invisible in code review since the var() _looks_ like a
+      normal themed value. Replaced all 9 occurrences across both files with the
+      actual design-system tokens. Verified `pnpm build` (vite) still succeeds.
+
 - [x] **Two dynamic status banners missing `aria-live="polite"`** (2026-07-23) — visual/
       accessibility pass over `ui/src/ui/views/`. Every other `role="status"` region in
       `chat.ts` (compaction indicator, connection status, queue banner) and `cron.ts` pairs
