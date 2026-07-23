@@ -1645,7 +1645,7 @@
 
 .code-block-copy.copied .code-block-copy__done {
   display: inline;
-  color: var(--success, #22c55e);
+  color: var(--ok);
 }
 
 .json-collapse {

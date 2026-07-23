@@ -1,11 +1,23 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-23 (visual pass)
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
 
+- [x] **`.code-block-copy__done` checkmark: undefined `--success` CSS var** (2026-07-23) —
+      visual pass swept `ui/src/ui/views/*.ts` for the mouse-only clickable-`<div>` a11y bug
+      fixed in prior passes (usage bars, skills/cron rows, heatmap cells) and found no new
+      instances — the remaining `@click` divs (command palette items, chip-input focus wrapper,
+      modal backdrops) are either already keyboard-navigable via their own `@keydown` handler or
+      wrap a real focusable control. Did find one more instance of the undefined-CSS-token bug
+      class (previously found with `--warning`): `ui/src/styles/components.css`'s
+      `.code-block-copy.copied .code-block-copy__done` referenced `var(--success, #22c55e)`, but
+      `--success` is never defined in `ui/src/styles/base.css` (the real token is `--ok`, which
+      is theme-aware: `#22c55e` dark / `#15803d` light), so the copy-confirmation checkmark
+      always showed the dark-mode green even in light mode. Switched to `var(--ok)`. Verified
+      `pnpm --filter ./ui build` still succeeds.
 - [x] **Usage overview daily/session bars, sessions sort headers: keyboard-inaccessible;
       `.btn--icon` light theme + chat unpin button: remaining polish** (2026-07-23) — follow-up
       visual/a11y pass found the same "clickable div with no keyboard access" bug in
@@ -31,7 +43,7 @@
       already being reachable by keyboard. Added `role="button"`, `tabindex="0"`, and an
       Enter/Space `@keydown` handler mirroring each row's click handler to all three. Also found
       `ui/src/styles/components.css`'s `.compaction-indicator--fallback` hardcoded `color:
-  #d97706` / `border-color: rgba(217, 119, 6, ...)` instead of the theme's `--warn` token
+#d97706` / `border-color: rgba(217, 119, 6, ...)` instead of the theme's `--warn` token
       (used by every sibling status color in the same block, and the same class of bug as the
       `--warning` token issue below) — it wouldn't repaint correctly in light mode. Switched to
       `var(--warn)` with a `color-mix()` border. Verified `pnpm --filter ./ui build` still
