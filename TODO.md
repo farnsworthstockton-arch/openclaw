@@ -6,6 +6,14 @@
 
 ## Done
 
+- [x] **Nostr profile form + overview attention item: undefined `--warning` CSS var** (2026-07-23) —
+      visual pass found `ui/src/ui/views/channels.nostr-profile-form.ts`'s unsaved-changes notice
+      and `ui/src/styles/components.css`'s `.ov-attention-item.warn` border referenced
+      `var(--warning, ...)` / `var(--warning-subtle, ...)`, tokens never defined in
+      `ui/src/styles/base.css`, so both always fell back to a hardcoded amber that ignored the
+      active theme instead of using the real `--warn` / `--warn-subtle` tokens already used by
+      `chat.ts`, `skills.ts`, and elsewhere in `components.css`. Switched both to the real tokens.
+      Verified `pnpm --filter ./ui build` still succeeds.
 - [x] **Usage view: hourly heatmap cells were mouse-only** (2026-07-23) — visual/a11y pass found
       `ui/src/ui/views/usage-metrics.ts`'s 24-cell hourly usage mosaic (`.usage-hour-cell`) was a
       plain `<div @click>` with only a `title` tooltip — not focusable, no accessible name, and
