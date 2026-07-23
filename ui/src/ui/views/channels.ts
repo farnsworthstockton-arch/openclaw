@@ -80,7 +80,11 @@ export function renderChannels(props: ChannelsProps) {
           <div class="card-sub">${t("channels.health.subtitle")}</div>
         </div>
         <div class="muted">
-          ${props.lastSuccessAt ? formatRelativeTimestamp(props.lastSuccessAt) : t("common.na")}
+          ${props.loading
+            ? t("common.loading")
+            : props.lastSuccessAt
+              ? formatRelativeTimestamp(props.lastSuccessAt)
+              : t("common.na")}
         </div>
       </div>
       ${props.lastError

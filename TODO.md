@@ -6,6 +6,22 @@
 
 ## Done
 
+- [x] **Channels view: missing loading cue; markdown sidebar close button: no accessible name**
+      (2026-07-23) — with the undefined-CSS-custom-property bug class fully closed, this pass
+      looked for other visual gaps by diffing dominant patterns against outlier views.
+      `ui/src/ui/views/channels.ts` declared `props.loading` in its props type but never read
+      it, so the channel health card gave no cue while data was fetching (every other view with
+      a refresh action shows a loading label, e.g. `sessions.ts`, `debug.ts`, `nodes.ts`) —
+      added a `t("common.loading")` cue in the health card's timestamp slot. Separately,
+      `ui/src/ui/views/markdown-sidebar.ts`'s icon-only sidebar-close button only had a `title`
+      attribute (not reliably read by screen readers), unlike the equivalent close button in
+      `chat.ts` which has `aria-label="Close search"` — added `aria-label="Close sidebar"`.
+      Verified `pnpm build` (vite) still succeeds. Ruled out (verified by reading, not just
+      grep): dreaming.ts wiki-preview error handling, channel-provider `callout` styling
+      differences (deliberate shared pattern, not an outlier), missing `alt` text (all present),
+      "no items yet" empty states elsewhere (already consistent), and non-focusable clickable
+      `<div @click>` in skills.ts/cron.ts/command-palette.ts (repo-wide dominant pattern, a
+      systemic redesign concern rather than a small surgical fix, out of scope for this pass).
 - [x] **Accessibility fixes: unlabeled remove button, unannounced cron error** (2026-07-23) —
       visual/a11y pass confirmed the CSS-custom-property sweep below is fully closed (every
       remaining `var(--x)` with no matching token already carries an inline fallback, so
