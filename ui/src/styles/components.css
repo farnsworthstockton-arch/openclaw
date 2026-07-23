@@ -976,7 +976,7 @@
 }
 
 .cron-error {
-  color: var(--danger-color);
+  color: var(--danger);
 }
 
 .cron-required-legend {
@@ -986,7 +986,7 @@
 }
 
 .cron-required-marker {
-  color: var(--danger-color);
+  color: var(--danger);
   font-weight: 700;
   margin-left: 3px;
 }

@@ -6,6 +6,20 @@
 
 ## Done
 
+- [x] **Three more undefined-CSS-custom-property regressions (same bug class)** (2026-07-23) —
+      follow-up visual pass after the nostr channel fix below, this time auditing every
+      `var(--x)` in `ui/src` against tokens actually defined in `ui/src/styles/*.css`.
+      Found `.cron-error` and `.cron-required-marker` in `ui/src/styles/components.css`
+      (the cron form's validation-error text and required-field asterisk) both used
+      `var(--danger-color)`, which is not a real token (`--danger` is) — no fallback, so
+      both rendered invisible/default-color in both themes. Also
+      `ui/src/ui/views/channels.nostr-profile-form.ts:280`'s "unsaved changes" notice used
+      `var(--warning-color)`, and the design system has no `--warning` color token at all
+      (only `--warning-subtle`, always used with a fallback). Fixed the cron selectors to
+      use `--danger`, and gave the unsaved-changes notice an inline fallback
+      (`var(--warning, #d97706)`) matching the amber tone used elsewhere for warning states
+      (e.g. `chat.ts`'s context-usage banner). Verified `vite build` still succeeds.
+
 - [x] **Nostr channel UI referenced undefined CSS custom properties** (2026-07-23) —
       visual pass over `ui/src/ui/views/channels.nostr.ts` and
       `channels.nostr-profile-form.ts`. Both files styled inputs, textareas, avatar
