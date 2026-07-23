@@ -6,6 +6,12 @@
 
 ## Done
 
+- [x] **Usage view: query-chip remove button missing `aria-label`** (2026-07-23) — visual/a11y
+      pass found `ui/src/ui/views/usage.ts`'s query-term chip remove button (`×`, line ~690)
+      had only a `title` attribute, unlike every sibling remove button in the same view family
+      (`usage-render-overview.ts` filter chips) and the repo-wide icon-only-button convention.
+      Added `aria-label="Remove ${label}"` matching that pattern. Verified `pnpm build` (ui)
+      still succeeds.
 - [x] **Config form: array/map "remove" buttons missing `aria-label`** (2026-07-23) — visual/a11y
       pass found `ui/src/ui/views/config-form.node.ts`'s dynamically-repeated array-item and
       map-entry remove buttons (lines ~1132 and ~1282) rendered only a trash icon with a `title`
