@@ -6,6 +6,21 @@
 
 ## Done
 
+- [x] **Usage overview daily/session bars, sessions sort headers: keyboard-inaccessible;
+      `.btn--icon` light theme + chat unpin button: remaining polish** (2026-07-23) — follow-up
+      visual/a11y pass found the same "clickable div with no keyboard access" bug in
+      `ui/src/ui/views/usage-render-overview.ts`'s daily bar chart (`daily-bar-wrapper`) and
+      session list rows (`session-bar-row`) — both `@click`-only, mirroring the hourly heatmap
+      cells fixed previously. Added `role="button"`, `tabindex="0"`, `aria-pressed`, `aria-label`,
+      and an Enter/Space `@keydown` handler to both, plus matching `:focus-visible` outlines in
+      `ui/src/styles/usage.css`. Also found `ui/src/ui/views/sessions.ts`'s sortable `<th>` column
+      headers were `@click`-only; added `tabindex="0"`, `aria-sort`, and a keydown handler.
+      Separately, `ui/src/styles/components.css`'s `:root[data-theme-mode="light"] .btn--icon`
+      and its `:hover` state hardcoded `background: #ffffff` instead of the theme's `--card` token
+      (which is `#ffffff` in every light palette already) — same bug class as the earlier
+      `--warn`/`--warning` token fixes. Switched both to `var(--card)`. Lastly,
+      `ui/src/ui/views/chat.ts`'s pinned-message unpin button was icon-only with only a `title`,
+      no `aria-label` — added one. Verified `pnpm --filter ./ui build` still succeeds.
 - [x] **Skills/ClawHub list rows + cron job rows: keyboard-inaccessible; compaction fallback
       indicator: hardcoded hex color** (2026-07-23) — visual/a11y pass found three more instances
       of the `list-item-clickable` pattern where a plain `<div @click>` row (not a `<button>`) had
@@ -16,7 +31,7 @@
       already being reachable by keyboard. Added `role="button"`, `tabindex="0"`, and an
       Enter/Space `@keydown` handler mirroring each row's click handler to all three. Also found
       `ui/src/styles/components.css`'s `.compaction-indicator--fallback` hardcoded `color:
-    #d97706` / `border-color: rgba(217, 119, 6, ...)` instead of the theme's `--warn` token
+  #d97706` / `border-color: rgba(217, 119, 6, ...)` instead of the theme's `--warn` token
       (used by every sibling status color in the same block, and the same class of bug as the
       `--warning` token issue below) — it wouldn't repaint correctly in light mode. Switched to
       `var(--warn)` with a `color-mix()` border. Verified `pnpm --filter ./ui build` still

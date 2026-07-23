@@ -1318,14 +1318,14 @@
 }
 
 :root[data-theme-mode="light"] .btn--icon {
-  background: #ffffff;
+  background: var(--card);
   border-color: var(--border);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
   color: var(--muted);
 }
 
 :root[data-theme-mode="light"] .btn--icon:hover {
-  background: #ffffff;
+  background: var(--card);
   border-color: var(--border-strong);
   color: var(--text);
 }
