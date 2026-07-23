@@ -6,6 +6,15 @@
 
 ## Done
 
+- [x] **Config form: array/map "remove" buttons missing `aria-label`** (2026-07-23) — visual/a11y
+      pass found `ui/src/ui/views/config-form.node.ts`'s dynamically-repeated array-item and
+      map-entry remove buttons (lines ~1132 and ~1282) rendered only a trash icon with a `title`
+      attribute, no `aria-label`, unlike the sensitive-value reveal toggle earlier in the same
+      file and the repo-wide icon-only-button convention (chat.ts, agents-panels-overview.ts).
+      Screen-reader users navigating by role got an unlabeled "button" for a destructive delete
+      action, worse than usual since a list can contain many identical trash icons with no
+      distinguishing name. Added matching `aria-label="Remove item"` / `aria-label="Remove entry"`.
+      Verified `pnpm --filter ./ui build` still succeeds.
 - [x] **Channels view: missing loading cue; markdown sidebar close button: no accessible name**
       (2026-07-23) — with the undefined-CSS-custom-property bug class fully closed, this pass
       looked for other visual gaps by diffing dominant patterns against outlier views.
