@@ -6,6 +6,22 @@
 
 ## Done
 
+- [x] **Full repo-wide sweep for undefined CSS custom properties (same bug class, now closed)**
+      (2026-07-23) — the last three passes fixed instances of this bug one file/component at a
+      time; this pass instead diffed every `var(--x)` used anywhere in `ui/src` against every
+      token actually defined in `ui/src/styles/*.css` to find every remaining instance at once.
+      Found 8 more usages with no fallback value (meaning the whole CSS property goes invalid,
+      not just falls back to a default): `--fg` (should be `--text`) in
+      `.login-gate__help-title`, `.login-gate__steps code`, and `.login-gate__command` in
+      `components.css` — the auth login-gate screen, i.e. the first thing a new user sees;
+      `--foreground` (should be `--text`) in the welcome-screen `h2`, the suggestion chips, and
+      `.chat-side-result__question`/`:hover` across `layout.css` and `components.css`;
+      `--font-mono` (should be `--mono`) in the login-gate code block and the chat hint `kbd`;
+      `--shadow-card` (should be `--shadow-md`) on the cron filter dropdown; and `--surface`
+      (should be `--panel`) on the dreams sort toggle background. Left the several other
+      undefined-token usages alone since they already carry an inline fallback (e.g.
+      `var(--warning, #d97706)`, `var(--surface-2, rgba(127,127,127,0.05))`) and so render
+      correctly today. Verified `pnpm build` (vite) still succeeds.
 - [x] **Three more undefined-CSS-custom-property regressions (same bug class)** (2026-07-23) —
       follow-up visual pass after the nostr channel fix below, this time auditing every
       `var(--x)` in `ui/src` against tokens actually defined in `ui/src/styles/*.css`.

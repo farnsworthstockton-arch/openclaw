@@ -94,7 +94,7 @@
   font-weight: 600;
   font-size: 12px;
   margin-bottom: 10px;
-  color: var(--fg);
+  color: var(--text);
 }
 
 .login-gate__steps {
@@ -117,12 +117,12 @@
   display: block;
   margin: 4px 0 2px;
   padding: 5px 10px;
-  font-family: var(--font-mono);
+  font-family: var(--mono);
   font-size: 11px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--fg);
+  color: var(--text);
   user-select: all;
 }
 
@@ -135,7 +135,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--fg);
+  color: var(--text);
   cursor: copy;
 }
 
@@ -1185,7 +1185,7 @@
   padding: 10px;
   display: grid;
   gap: 10px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-md);
 }
 
 .cron-filter-dropdown__list {
@@ -1515,7 +1515,7 @@
 }
 
 .chat-side-result__dismiss:hover {
-  color: var(--foreground);
+  color: var(--text);
 }
 
 .chat-side-result__dismiss svg {
@@ -1526,7 +1526,7 @@
 .chat-side-result__question {
   font-size: 14px;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text);
 }
 
 .chat-side-result__body {
