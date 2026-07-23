@@ -397,7 +397,12 @@ export function renderOverview(props: OverviewProps) {
           </div>
         </div>
         ${props.lastError
-          ? html`<div class="callout danger" style="margin-top: 14px;">
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 14px;"
+            >
               <div>${props.lastError}</div>
               ${pairingHint ?? ""} ${authHint ?? ""} ${insecureContextHint ?? ""}
               ${queryTokenHint ?? ""}

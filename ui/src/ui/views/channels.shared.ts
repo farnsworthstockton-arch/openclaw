@@ -122,7 +122,14 @@ export function renderSingleAccountChannelCard(params: {
       </div>
 
       ${params.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${params.lastError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${params.lastError}
+          </div>`
         : nothing}
       ${params.secondaryCallout ?? nothing} ${params.extraContent ?? nothing}
       ${params.configSection} ${params.footer ?? nothing}

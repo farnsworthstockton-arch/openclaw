@@ -196,7 +196,12 @@ export function renderSkills(props: SkillsProps) {
           ${props.clawhubSearchLoading ? html`<span class="muted">Searching…</span>` : nothing}
         </div>
         ${props.clawhubSearchError
-          ? html`<div class="callout danger" style="margin-top: 8px;">
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 8px;"
+            >
               ${props.clawhubSearchError}
             </div>`
           : nothing}
@@ -212,7 +217,14 @@ export function renderSkills(props: SkillsProps) {
       </div>
 
       ${props.error
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${props.error}
+          </div>`
         : nothing}
       ${filtered.length === 0
         ? html`
@@ -327,7 +339,9 @@ function renderClawHubDetailDialog(props: SkillsProps) {
           ${props.clawhubDetailLoading
             ? html`<div class="muted">${t("common.loading")}</div>`
             : props.clawhubDetailError
-              ? html`<div class="callout danger">${props.clawhubDetailError}</div>`
+              ? html`<div class="callout danger" role="alert" aria-live="assertive">
+                  ${props.clawhubDetailError}
+                </div>`
               : detail?.skill
                 ? html`
                     <div style="font-size: 14px; line-height: 1.5;">

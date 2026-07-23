@@ -202,7 +202,14 @@ export function renderAgents(props: AgentsProps) {
           </div>
         </div>
         ${props.error
-          ? html`<div class="callout danger" style="margin-top: 8px;">${props.error}</div>`
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 8px;"
+            >
+              ${props.error}
+            </div>`
           : nothing}
       </section>
       <section class="agents-main">

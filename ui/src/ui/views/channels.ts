@@ -88,7 +88,14 @@ export function renderChannels(props: ChannelsProps) {
         </div>
       </div>
       ${props.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${props.lastError}
+          </div>`
         : nothing}
       <pre class="code-block" style="margin-top: 12px;">
 ${props.snapshot ? JSON.stringify(props.snapshot, null, 2) : t("channels.health.noSnapshotYet")}
@@ -226,7 +233,14 @@ function renderGenericChannelCard(
             </div>
           `}
       ${lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${lastError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${lastError}
+          </div>`
         : nothing}
       ${renderChannelConfigSection({ channelId: key, props })}
     </div>

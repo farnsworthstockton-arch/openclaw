@@ -6,6 +6,15 @@
 
 ## Done
 
+- [x] **Error callouts repo-wide: not announced to screen readers** (2026-07-23) — visual/a11y
+      pass found that only `cron.ts`'s refresh-error strip had `role="alert" aria-live="assertive"`
+      on its `callout danger` block (fixed in a prior pass); every other `.callout.danger` error
+      message across the UI (channels, agents, sessions, chat, skills, config, login-gate, logs,
+      nodes, debug, instances, markdown-sidebar, gateway URL confirmation, etc. — 29 call sites in
+      24 files) rendered as plain text with no live-region semantics, so a screen-reader user got
+      no announcement when a save/connect/probe/checkpoint action failed silently in the
+      background. Added `role="alert" aria-live="assertive"` to all of them to match the
+      established pattern. Verified `pnpm --filter ./ui build` still succeeds.
 - [x] **Usage view: query-chip remove button missing `aria-label`** (2026-07-23) — visual/a11y
       pass found `ui/src/ui/views/usage.ts`'s query-term chip remove button (`×`, line ~690)
       had only a `title` attribute, unlike every sibling remove button in the same view family

@@ -1430,7 +1430,9 @@ export function renderChat(props: ChatProps) {
       @dragover=${(e: DragEvent) => e.preventDefault()}
     >
       ${props.disabledReason ? html`<div class="callout">${props.disabledReason}</div>` : nothing}
-      ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
+      ${props.error
+        ? html`<div class="callout danger" role="alert" aria-live="assertive">${props.error}</div>`
+        : nothing}
       ${props.focusMode
         ? html`
             <button

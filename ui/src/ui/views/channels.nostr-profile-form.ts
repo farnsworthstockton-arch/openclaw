@@ -193,7 +193,14 @@ export function renderNostrProfileForm(params: {
       </div>
 
       ${state.error
-        ? html`<div class="callout danger" style="margin-bottom: 12px;">${state.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-bottom: 12px;"
+          >
+            ${state.error}
+          </div>`
         : nothing}
       ${state.success
         ? html`<div class="callout success" style="margin-bottom: 12px;">${state.success}</div>`

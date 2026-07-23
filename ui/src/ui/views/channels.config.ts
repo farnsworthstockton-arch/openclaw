@@ -87,11 +87,19 @@ export function renderChannelConfigForm(props: ChannelConfigFormProps) {
   const analysis = analyzeConfigSchema(props.schema);
   const normalized = analysis.schema;
   if (!normalized) {
-    return html` <div class="callout danger">Schema unavailable. Use Raw.</div> `;
+    return html`
+      <div class="callout danger" role="alert" aria-live="assertive">
+        Schema unavailable. Use Raw.
+      </div>
+    `;
   }
   const node = resolveSchemaNode(normalized, ["channels", props.channelId]);
   if (!node) {
-    return html` <div class="callout danger">Channel config schema unavailable.</div> `;
+    return html`
+      <div class="callout danger" role="alert" aria-live="assertive">
+        Channel config schema unavailable.
+      </div>
+    `;
   }
   const configValue = props.configValue ?? {};
   const value = resolveChannelValue(configValue, props.channelId);

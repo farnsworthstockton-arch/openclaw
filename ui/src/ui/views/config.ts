@@ -1137,7 +1137,12 @@ export function renderConfig(props: ConfigProps) {
         </div>
 
         ${props.issues.length > 0
-          ? html`<div class="callout danger" style="margin-top: 12px;">
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 12px;"
+            >
               <pre class="code-block">${JSON.stringify(props.issues, null, 2)}</pre>
             </div>`
           : nothing}

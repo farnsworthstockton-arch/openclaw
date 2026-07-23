@@ -732,7 +732,9 @@ export function renderUsage(props: UsageProps) {
         </div>
 
         ${data.error
-          ? html`<div class="callout danger usage-callout">${data.error}</div>`
+          ? html`<div class="callout danger usage-callout" role="alert" aria-live="assertive">
+              ${data.error}
+            </div>`
           : nothing}
         ${data.sessionsLimitReached
           ? html`

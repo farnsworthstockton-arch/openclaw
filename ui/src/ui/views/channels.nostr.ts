@@ -229,7 +229,14 @@ export function renderNostrCard(params: {
             </div>
           `}
       ${summaryLastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${summaryLastError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${summaryLastError}
+          </div>`
         : nothing}
       ${renderProfileSection()} ${renderChannelConfigSection({ channelId: "nostr", props })}
 
