@@ -1,11 +1,22 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-23 (visual pass)
+**Last updated:** 2026-07-24 (visual pass)
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
 
+- [x] **Dreams diary wiki-preview modal: no Escape-to-close, missing dialog semantics**
+      (2026-07-24) — visual/a11y pass swept `ui/src/ui/views/*.ts` for `<div @click>` handlers
+      lacking keyboard equivalents (the same bug class fixed in prior passes for usage bars,
+      session rows, skills/cron rows) and found the remaining ones are either real `<button>`s or
+      modal backdrops that close-on-click. Of the backdrops, `dreaming.ts`'s
+      `renderWikiPreviewOverlay` (the "Dreams Diary" wiki page preview) was the one outlier: every
+      other modal in the app (command palette, chat side panel) handles `Escape` to close, but
+      this one didn't, and its panel had no `role="dialog"`/`aria-modal` for screen readers.
+      Added an `Escape` keydown handler on the backdrop (bubbles up from whatever control has
+      focus inside, e.g. the Close button) and `role="dialog"`, `aria-modal="true"`,
+      `aria-label` on the panel. Verified `pnpm --filter ./ui build` still succeeds.
 - [x] **`.code-block-copy__done` checkmark: undefined `--success` CSS var** (2026-07-23) —
       visual pass swept `ui/src/ui/views/*.ts` for the mouse-only clickable-`<div>` a11y bug
       fixed in prior passes (usage bars, skills/cron rows, heatmap cells) and found no new

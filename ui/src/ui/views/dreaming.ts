@@ -576,8 +576,19 @@ function renderWikiPreviewOverlay(props: DreamingProps) {
     <div
       class="dreams-diary__preview-backdrop"
       @click=${() => closeWikiPreview(props.onRequestUpdate)}
+      @keydown=${(event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          closeWikiPreview(props.onRequestUpdate);
+        }
+      }}
     >
-      <div class="dreams-diary__preview-panel" @click=${(event: Event) => event.stopPropagation()}>
+      <div
+        class="dreams-diary__preview-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label=${_wikiPreviewTitle || "Wiki page"}
+        @click=${(event: Event) => event.stopPropagation()}
+      >
         <div class="dreams-diary__preview-header">
           <div>
             <div class="dreams-diary__preview-title">${_wikiPreviewTitle || "Wiki page"}</div>
