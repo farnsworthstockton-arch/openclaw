@@ -275,7 +275,17 @@ function renderUsageMosaic(
                   class="usage-hour-cell ${selected ? "selected" : ""}"
                   style="background: ${bg}; border-color: ${border};"
                   title="${title}"
+                  role="button"
+                  tabindex="0"
+                  aria-pressed=${selected}
+                  aria-label=${title}
                   @click=${(e: MouseEvent) => onSelectHour(hour, e.shiftKey)}
+                  @keydown=${(e: KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectHour(hour, e.shiftKey);
+                    }
+                  }}
                 ></div>
               `;
             })}

@@ -936,6 +936,11 @@ details.usage-filter-select summary::-webkit-details-marker,
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
+.usage-hour-cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .usage-hour-cell.selected {
   border-color: color-mix(in srgb, var(--accent) 60%, transparent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);

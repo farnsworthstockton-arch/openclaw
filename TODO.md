@@ -6,6 +6,15 @@
 
 ## Done
 
+- [x] **Usage view: hourly heatmap cells were mouse-only** (2026-07-23) — visual/a11y pass found
+      `ui/src/ui/views/usage-metrics.ts`'s 24-cell hourly usage mosaic (`.usage-hour-cell`) was a
+      plain `<div @click>` with only a `title` tooltip — not focusable, no accessible name, and
+      unusable from the keyboard, unlike every button-driven filter elsewhere in the same view.
+      Added `role="button"`, `tabindex="0"`, `aria-pressed`, `aria-label` (reusing the existing
+      tooltip text), and an Enter/Space `@keydown` handler mirroring the click handler (including
+      shift-click multi-select via `shiftKey`). Added a matching `:focus-visible` outline in
+      `ui/src/styles/usage.css` since the cell had no prior focus style. Verified
+      `pnpm --filter ./ui build` still succeeds.
 - [x] **Error callouts repo-wide: not announced to screen readers** (2026-07-23) — visual/a11y
       pass found that only `cron.ts`'s refresh-error strip had `role="alert" aria-live="assertive"`
       on its `callout danger` block (fixed in a prior pass); every other `.callout.danger` error
