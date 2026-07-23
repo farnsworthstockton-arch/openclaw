@@ -6,6 +6,19 @@
 
 ## Done
 
+- [x] **Accessibility fixes: unlabeled remove button, unannounced cron error** (2026-07-23) —
+      visual/a11y pass confirmed the CSS-custom-property sweep below is fully closed (every
+      remaining `var(--x)` with no matching token already carries an inline fallback, so
+      nothing renders broken). Found two new issues: the fallback-model chip's remove button
+      in `ui/src/ui/views/agents-panels-overview.ts` rendered only `×` with no accessible name
+      (every other remove button in the codebase has one), so screen readers announced it as
+      unlabeled — added `aria-label="Remove ${chip}"`. The cron summary strip's refresh error
+      in `ui/src/ui/views/cron.ts` rendered as plain gray `.muted` text with no `aria-live`,
+      unlike the `callout danger` + `aria-live` pattern used for errors elsewhere in the app —
+      switched it to `callout danger` with `role="alert" aria-live="assertive"`. Left the
+      hardcoded hex colors in the `dreaming.ts` sleeping-lobster SVG illustration alone since
+      that's likely intentional brand art, not a themed UI element. Verified `vite build`
+      still succeeds.
 - [x] **Full repo-wide sweep for undefined CSS custom properties (same bug class, now closed)**
       (2026-07-23) — the last three passes fixed instances of this bug one file/component at a
       time; this pass instead diffed every `var(--x)` used anywhere in `ui/src` against every

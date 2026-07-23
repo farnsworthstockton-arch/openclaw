@@ -425,7 +425,11 @@ export function renderCron(props: CronProps) {
         >
           ${props.loading ? t("cron.summary.refreshing") : t("cron.summary.refresh")}
         </button>
-        ${props.error ? html`<span class="muted">${props.error}</span>` : nothing}
+        ${props.error
+          ? html`<span class="callout danger" role="alert" aria-live="assertive"
+              >${props.error}</span
+            >`
+          : nothing}
       </div>
     </section>
 
