@@ -816,6 +816,7 @@ function renderAdvancedSection(props: DreamingProps) {
                 ? "success"
                 : "danger"}"
               role="status"
+              aria-live="polite"
             >
               <div class="row wrap items-center gap-2">
                 <span>${props.dreamDiaryActionMessage.text}</span>

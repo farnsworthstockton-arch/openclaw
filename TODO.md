@@ -6,6 +6,15 @@
 
 ## Done
 
+- [x] **Two dynamic status banners missing `aria-live="polite"`** (2026-07-23) — visual/
+      accessibility pass over `ui/src/ui/views/`. Every other `role="status"` region in
+      `chat.ts` (compaction indicator, connection status, queue banner) and `cron.ts` pairs
+      `role="status"` with `aria-live="polite"` so screen readers announce it without a focus
+      change. Two were missing the pairing: the context-usage warning banner in
+      `chat.ts:559` (fires purely from rising token usage, no user action) and the dream-diary
+      save/error callout in `dreaming.ts:818`. Added `aria-live="polite"` to both. Verified
+      `vite build` still succeeds.
+
 - [x] **Contact-placeholder guard missed the `[Stockton phone]` spelling variant** (2026-07-23) —
       `src/agents/skills.cre-skills-frontmatter.test.ts`'s regression guard (added to permanently
       close the "env var used only as a prose placeholder → gateway reports skill ready → message

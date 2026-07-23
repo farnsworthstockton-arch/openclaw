@@ -556,7 +556,12 @@ function renderContextNotice(
   const bgOpacity = 0.08 + 0.08 * t;
   const bg = `rgba(${r}, ${g}, ${b}, ${bgOpacity})`;
   return html`
-    <div class="context-notice" role="status" style="--ctx-color:${color};--ctx-bg:${bg}">
+    <div
+      class="context-notice"
+      role="status"
+      aria-live="polite"
+      style="--ctx-color:${color};--ctx-bg:${bg}"
+    >
       <svg
         class="context-notice__icon"
         width="16"
