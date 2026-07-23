@@ -6,6 +6,21 @@
 
 ## Done
 
+- [x] **Skills/ClawHub list rows + cron job rows: keyboard-inaccessible; compaction fallback
+      indicator: hardcoded hex color** (2026-07-23) — visual/a11y pass found three more instances
+      of the `list-item-clickable` pattern where a plain `<div @click>` row (not a `<button>`) had
+      no `role="button"`, `tabindex="0"`, or keydown handler, unlike the usage-view hourly heatmap
+      cells fixed in a prior pass: `ui/src/ui/views/skills.ts`'s per-skill row (`renderSkill`) and
+      its ClawHub search-result row (`renderClawHubResults`), and `ui/src/ui/views/cron.ts`'s
+      per-job row (`renderJob`) — all three were mouse-only despite every action inside them
+      already being reachable by keyboard. Added `role="button"`, `tabindex="0"`, and an
+      Enter/Space `@keydown` handler mirroring each row's click handler to all three. Also found
+      `ui/src/styles/components.css`'s `.compaction-indicator--fallback` hardcoded `color:
+    #d97706` / `border-color: rgba(217, 119, 6, ...)` instead of the theme's `--warn` token
+      (used by every sibling status color in the same block, and the same class of bug as the
+      `--warning` token issue below) — it wouldn't repaint correctly in light mode. Switched to
+      `var(--warn)` with a `color-mix()` border. Verified `pnpm --filter ./ui build` still
+      succeeds.
 - [x] **Nostr profile form + overview attention item: undefined `--warning` CSS var** (2026-07-23) —
       visual pass found `ui/src/ui/views/channels.nostr-profile-form.ts`'s unsaved-changes notice
       and `ui/src/styles/components.css`'s `.ov-attention-item.warn` border referenced

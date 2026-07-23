@@ -272,7 +272,15 @@ function renderClawHubResults(props: SkillsProps) {
         (r) => html`
           <div
             class="list-item list-item-clickable"
+            role="button"
+            tabindex="0"
             @click=${() => props.onClawHubDetailOpen(r.slug)}
+            @keydown=${(e: KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                props.onClawHubDetailOpen(r.slug);
+              }
+            }}
           >
             <div class="list-main">
               <div class="list-title">${r.displayName}</div>
@@ -398,7 +406,18 @@ function renderSkill(skill: SkillStatusEntry, props: SkillsProps) {
   const dotClass = skillStatusClass(skill);
 
   return html`
-    <div class="list-item list-item-clickable" @click=${() => props.onDetailOpen(skill.skillKey)}>
+    <div
+      class="list-item list-item-clickable"
+      role="button"
+      tabindex="0"
+      @click=${() => props.onDetailOpen(skill.skillKey)}
+      @keydown=${(e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          props.onDetailOpen(skill.skillKey);
+        }
+      }}
+    >
       <div class="list-main">
         <div class="list-title" style="display: flex; align-items: center; gap: 8px;">
           <span class="statusDot ${dotClass}"></span>

@@ -1477,7 +1477,18 @@ function renderJob(job: CronJob, props: CronProps) {
     action();
   };
   return html`
-    <div class=${itemClass} @click=${() => props.onLoadRuns(job.id)}>
+    <div
+      class=${itemClass}
+      role="button"
+      tabindex="0"
+      @click=${() => props.onLoadRuns(job.id)}
+      @keydown=${(e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          props.onLoadRuns(job.id);
+        }
+      }}
+    >
       <div class="list-main">
         <div class="list-title">${job.name}</div>
         <div class="list-sub">${formatCronSchedule(job)}</div>
