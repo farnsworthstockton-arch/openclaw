@@ -228,13 +228,19 @@ export function renderCommandPalette(props: CommandPaletteProps) {
           ${ref(focusInput)}
           class="cmd-palette__input"
           placeholder="${t("overview.palette.placeholder")}"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="cmd-palette-listbox"
+          aria-activedescendant=${items[props.activeIndex]
+            ? `cmd-palette-option-${items[props.activeIndex].id}`
+            : nothing}
           .value=${props.query}
           @input=${(e: Event) => {
             props.onQueryChange((e.target as HTMLInputElement).value);
             props.onActiveIndexChange(0);
           }}
         />
-        <div class="cmd-palette__results">
+        <div class="cmd-palette__results" id="cmd-palette-listbox" role="listbox">
           ${grouped.length === 0
             ? html`<div class="cmd-palette__empty">
                 <span class="nav-item__icon" style="opacity:0.3;width:20px;height:20px"
@@ -252,7 +258,10 @@ export function renderCommandPalette(props: CommandPaletteProps) {
                     const isActive = globalIndex === props.activeIndex;
                     return html`
                       <div
+                        id="cmd-palette-option-${item.id}"
                         class="cmd-palette__item ${isActive ? "cmd-palette__item--active" : ""}"
+                        role="option"
+                        aria-selected=${isActive}
                         @click=${(e: Event) => {
                           e.stopPropagation();
                           selectItem(item, props);

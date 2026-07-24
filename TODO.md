@@ -6,6 +6,18 @@
 
 ## Done
 
+- [x] **Command palette: no ARIA combobox/listbox semantics for screen readers** (2026-07-24
+      visual pass) — swept `ui/src/ui/views/*.ts` for the mouse-only-clickable-div bug class
+      fixed in prior passes and found the remaining `@click` handlers are all real `<button>`s or
+      already-keyboard-handled patterns (e.g. `command-palette.ts`'s arrow-key/Enter/Escape
+      navigation, `dreaming.ts`'s modal Escape handling). That palette, though, is a classic
+      combobox-over-listbox widget — arrow keys move a visually-highlighted "active" item, but
+      the markup had no `role="combobox"`/`listbox`/`option` or `aria-selected`/
+      `aria-activedescendant`, so a screen reader user got no indication which item was active or
+      that the list was navigable at all. Added `role="combobox"` + `aria-expanded` +
+      `aria-controls` + `aria-activedescendant` on the input, `role="listbox"` on the results
+      container, and `role="option"` + `aria-selected` + a stable `id` on each item. Verified
+      `pnpm --filter ./ui build` still succeeds.
 - [x] **Overview log-tail refresh icon: keyboard-inaccessible, no aria-label** (2026-07-24
       visual pass) — swept remaining `@click`-only elements across `ui/src/ui/views/*.ts` for the
       same bug class fixed in prior passes (usage bars, sessions/skills/cron rows, wiki modal) and
