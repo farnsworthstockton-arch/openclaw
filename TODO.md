@@ -1,11 +1,31 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-24 (visual pass, cont'd)
+**Last updated:** 2026-07-29 (daily-improve)
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
 
+- [x] **`openclaw skills info` misreported "any of" binary requirements as all-installed**
+      (2026-07-29 daily-improve) — the prior automated passes were all UI a11y/CSS-token
+      sweeps in `ui/src/ui/views/*.ts`; this pass looked in non-UI `src/` instead and found a
+      real wrong-data-output bug. `resolveMissingAnyBins` (`src/shared/requirements.ts`)
+      correctly treats `anyBins` as "any one of these satisfies the requirement" and reports
+      `missing.anyBins` as empty as soon as one candidate binary is present. But
+      `formatSkillInfo` (`src/cli/skills-cli.format.ts`) took that single aggregate
+      satisfied/missing boolean and stamped it onto _every_ candidate binary's name
+      individually. So a skill like `coding-agent` (`requires.anyBins: ["claude", "codex",
+    "opencode", "pi"]`) with only `claude` installed printed `✓ claude, ✓ codex, ✓ opencode,
+    ✓ pi` — falsely claiming three uninstalled CLIs were present. `src/cli/hooks-cli.ts`
+      already renders the equivalent "any of" hook requirement correctly (one combined
+      ✓/✗ line naming the whole group, e.g. `✓ (any of: a, b, c)`), so brought
+      `skills-cli.format.ts` in line with that existing correct pattern instead of inventing
+      a new one. Added a regression test in `src/cli/skills-cli.formatting.test.ts`
+      constructing a `SkillStatusEntry` with a satisfied `anyBins` requirement and asserting
+      the output no longer contains a bogus `✓` for the unsatisfied candidates. Verified with
+      `npx vitest run src/cli/skills-cli.formatting.test.ts` (3 passed); a full-repo `tsc
+    --noEmit` run OOMs on this box regardless of this change (pre-existing environment
+      limit, unrelated).
 - [x] **Command palette: no ARIA combobox/listbox semantics for screen readers** (2026-07-24
       visual pass) — swept `ui/src/ui/views/*.ts` for the mouse-only-clickable-div bug class
       fixed in prior passes and found the remaining `@click` handlers are all real `<button>`s or
