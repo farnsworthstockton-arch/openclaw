@@ -6,6 +6,28 @@
 
 ## Done
 
+- [x] **Config auto-restore falsely logged "restored" and marked corruption as handled even
+      when the backup copy failed** (2026-07-30 daily-improve) —
+      `maybeRecoverSuspiciousConfigRead`/`maybeRecoverSuspiciousConfigReadSync`
+      (`src/config/io.observe-recovery.ts`) detect a clobbered config file (e.g. reduced to
+      just `{ update: { channel: ... } }`, losing the real gateway config) and try to repair it
+      by copying `<config>.bak` over the live file. The `copyFile`/`copyFileSync` call was
+      wrapped in `try { ... } catch {}`, tracking success in a `restoredFromBackup` flag — but
+      the `logger.warn(...)` right after unconditionally said "Config auto-restored from
+      backup", even when the copy had just failed (permission error, disk full, read-only fs).
+      Worse, the function always persisted `lastObservedSuspiciousSignature` into
+      `config-health.json`, and a later read short-circuits recovery once that signature is
+      already recorded — so a failed restore silently "self-healed" in the logs while the
+      on-disk config stayed corrupted forever, with no retry on the next read. Fixed by
+      wording the log message according to `restoredFromBackup` ("restore FAILED" vs.
+      "auto-restored") and only persisting the suspicious signature (and thus only
+      short-circuiting future recovery attempts) when the copy actually succeeded. Added a
+      regression test in `src/config/io.observe-recovery.test.ts` that fails the backup copy,
+      asserts the failure is logged and audited correctly, and asserts a subsequent read with
+      the same corrupted content retries (and this time succeeds). Verified with `npx vitest
+    run src/config/io.observe-recovery.test.ts` (4 passed); a full-repo `tsc --noEmit` run
+      remains slow/OOM-prone on this box regardless of this change (pre-existing environment
+      limit, unrelated).
 - [x] **bestEffort outbound delivery could silently drop messages when the caller passed no
       `onError`** (2026-07-30 daily-improve) — `deliverOutboundPayloads` in
       `src/infra/outbound/deliver.ts` uses a write-ahead delivery queue: it persists the send
@@ -16,7 +38,7 @@
       `hadPartialFailure` flag, but it only did this wrapping `if (params.onError)`. Two real call
       sites (`src/media-understanding/echo-transcript.ts` and
       `src/gateway/server-node-events.ts`) call `deliverOutboundPayloads({ ..., bestEffort: true
-    })` without passing `onError`, so a transient send failure (network blip, rate limit, bot
+  })` without passing `onError`, so a transient send failure (network blip, rate limit, bot
       blocked) was silently swallowed, `hadPartialFailure` stayed `false`, and the queue entry
       was acked as delivered — permanently losing the message with no retry and no error
       surfaced anywhere. Fixed by wrapping `onError` unconditionally (defaulting to a no-op when
@@ -33,8 +55,8 @@
       `formatSkillInfo` (`src/cli/skills-cli.format.ts`) took that single aggregate
       satisfied/missing boolean and stamped it onto _every_ candidate binary's name
       individually. So a skill like `coding-agent` (`requires.anyBins: ["claude", "codex",
-  "opencode", "pi"]`) with only `claude` installed printed `✓ claude, ✓ codex, ✓ opencode,
-  ✓ pi` — falsely claiming three uninstalled CLIs were present. `src/cli/hooks-cli.ts`
+"opencode", "pi"]`) with only `claude` installed printed `✓ claude, ✓ codex, ✓ opencode,
+✓ pi` — falsely claiming three uninstalled CLIs were present. `src/cli/hooks-cli.ts`
       already renders the equivalent "any of" hook requirement correctly (one combined
       ✓/✗ line naming the whole group, e.g. `✓ (any of: a, b, c)`), so brought
       `skills-cli.format.ts` in line with that existing correct pattern instead of inventing
@@ -42,7 +64,7 @@
       constructing a `SkillStatusEntry` with a satisfied `anyBins` requirement and asserting
       the output no longer contains a bogus `✓` for the unsatisfied candidates. Verified with
       `npx vitest run src/cli/skills-cli.formatting.test.ts` (3 passed); a full-repo `tsc
-  --noEmit` run OOMs on this box regardless of this change (pre-existing environment
+--noEmit` run OOMs on this box regardless of this change (pre-existing environment
       limit, unrelated).
 - [x] **Command palette: no ARIA combobox/listbox semantics for screen readers** (2026-07-24
       visual pass) — swept `ui/src/ui/views/*.ts` for the mouse-only-clickable-div bug class

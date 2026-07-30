@@ -564,7 +564,9 @@ export async function maybeRecoverSuspiciousConfigRead(params: {
   } catch {}
 
   params.deps.logger.warn(
-    `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`,
+    restoredFromBackup
+      ? `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`
+      : `Config auto-restore FAILED (backup copy could not be written): ${params.configPath} (${suspicious.join(", ")})`,
   );
   await appendConfigAuditRecord(
     createConfigObserveAuditAppendParams(params.deps, {
@@ -581,11 +583,13 @@ export async function maybeRecoverSuspiciousConfigRead(params: {
     }),
   );
 
-  healthState = setConfigHealthEntry(healthState, params.configPath, {
-    ...entry,
-    lastObservedSuspiciousSignature: suspiciousSignature,
-  });
-  await writeConfigHealthState(params.deps, healthState);
+  if (restoredFromBackup) {
+    healthState = setConfigHealthEntry(healthState, params.configPath, {
+      ...entry,
+      lastObservedSuspiciousSignature: suspiciousSignature,
+    });
+    await writeConfigHealthState(params.deps, healthState);
+  }
   return { raw: backupRaw, parsed: backupParsed };
 }
 
@@ -658,7 +662,9 @@ export function maybeRecoverSuspiciousConfigReadSync(params: {
   } catch {}
 
   params.deps.logger.warn(
-    `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`,
+    restoredFromBackup
+      ? `Config auto-restored from backup: ${params.configPath} (${suspicious.join(", ")})`
+      : `Config auto-restore FAILED (backup copy could not be written): ${params.configPath} (${suspicious.join(", ")})`,
   );
   appendConfigAuditRecordSync(
     createConfigObserveAuditAppendParams(params.deps, {
@@ -675,11 +681,13 @@ export function maybeRecoverSuspiciousConfigReadSync(params: {
     }),
   );
 
-  healthState = setConfigHealthEntry(healthState, params.configPath, {
-    ...entry,
-    lastObservedSuspiciousSignature: suspiciousSignature,
-  });
-  writeConfigHealthStateSync(params.deps, healthState);
+  if (restoredFromBackup) {
+    healthState = setConfigHealthEntry(healthState, params.configPath, {
+      ...entry,
+      lastObservedSuspiciousSignature: suspiciousSignature,
+    });
+    writeConfigHealthStateSync(params.deps, healthState);
+  }
   return { raw: backupRaw, parsed: backupParsed };
 }
 
