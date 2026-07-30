@@ -1357,6 +1357,19 @@
   font-family: var(--mono);
 }
 
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg-subtle, transparent);
+}
+
 /* ===========================================
    Callouts - Informative with subtle depth
    =========================================== */

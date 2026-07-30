@@ -542,7 +542,7 @@ export function renderAgentSkills(params: {
       </div>
 
       ${filtered.length === 0
-        ? html` <div class="muted" style="margin-top: 16px">No skills found.</div> `
+        ? html` <div class="empty-state" style="margin-top: 16px">No skills found.</div> `
         : html`
             <div class="agent-skills-groups" style="margin-top: 16px;">
               ${groups.map((group) =>

@@ -228,7 +228,7 @@ export function renderSkills(props: SkillsProps) {
         : nothing}
       ${filtered.length === 0
         ? html`
-            <div class="muted" style="margin-top: 16px">
+            <div class="empty-state" style="margin-top: 16px">
               ${!props.connected && !props.report
                 ? "Not connected to gateway."
                 : "No skills found."}
@@ -264,7 +264,9 @@ function renderClawHubResults(props: SkillsProps) {
     return nothing;
   }
   if (results.length === 0) {
-    return html`<div class="muted" style="margin-top: 8px;">No skills found on ClawHub.</div>`;
+    return html`<div class="empty-state" style="margin-top: 8px;">
+      No skills found on ClawHub.
+    </div>`;
   }
   return html`
     <div class="list" style="margin-top: 8px;">

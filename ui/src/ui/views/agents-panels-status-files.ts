@@ -198,7 +198,7 @@ export function renderAgentChannels(params: {
             `
           : nothing}
         ${entries.length === 0
-          ? html` <div class="muted" style="margin-top: 16px">No channels found.</div> `
+          ? html` <div class="empty-state" style="margin-top: 16px">No channels found.</div> `
           : html`
               <div class="list" style="margin-top: 16px;">
                 ${entries.map((entry) => {

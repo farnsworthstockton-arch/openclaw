@@ -280,7 +280,7 @@ function renderBindings(state: BindingState) {
               </div>
 
               ${state.agents.length === 0
-                ? html` <div class="muted">No agents found.</div> `
+                ? html` <div class="empty-state">No agents found.</div> `
                 : state.agents.map((agent) => renderAgentBinding(agent, state))}
             </div>
           `}

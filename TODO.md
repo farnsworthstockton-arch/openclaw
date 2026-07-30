@@ -6,6 +6,18 @@
 
 ## Done
 
+- [x] **Control UI empty states were inconsistent plain "muted" text** (2026-07-30
+      daily-improve) — several Control UI panels (Skills tab, ClawHub search results, agent
+      Tools & Skills panel, agent Status Files/channels panel, Nodes agent-binding list)
+      rendered "No X found." as a bare `<div class="muted">` with no visual container, while
+      Sessions and Usage already used a padded, centered, bordered empty-state treatment.
+      Added a shared `.empty-state` utility class (`ui/src/styles/components.css`) —
+      centered text, muted color, dashed border, rounded corners, consistent padding — and
+      applied it in `ui/src/ui/views/skills.ts` (both the main list and ClawHub results),
+      `ui/src/ui/views/agents-panels-tools-skills.ts`,
+      `ui/src/ui/views/agents-panels-status-files.ts`, and `ui/src/ui/views/nodes.ts` in
+      place of the bare `.muted` divs. No text/copy changes, no new assets. Verified with
+      `npx vite build` in `ui/` (799 modules, built in 2.75s, no errors).
 - [x] **Archived session-transcript cleanup counted failed deletes as "removed"** (2026-07-30
       daily-improve) — `cleanupArchivedSessionTranscripts` (`src/gateway/session-transcript-files.fs.ts`)
       sweeps configured session directories for archived transcript files (named
@@ -25,7 +37,7 @@
       asserts `scanned` still counts both files while `removed` only counts the one that
       actually succeeded (and that the failed file is still present on disk afterward);
       verified the test fails against the pre-fix code (`removed` came back as 2 instead of 1) before confirming it passes against the fix. Verified with `npx vitest run
-    src/gateway/session-transcript-files.fs.test.ts` (2 passed).
+  src/gateway/session-transcript-files.fs.test.ts` (2 passed).
 - [x] **Config auto-restore falsely logged "restored" and marked corruption as handled even
       when the backup copy failed** (2026-07-30 daily-improve) —
       `maybeRecoverSuspiciousConfigRead`/`maybeRecoverSuspiciousConfigReadSync`
@@ -45,7 +57,7 @@
       regression test in `src/config/io.observe-recovery.test.ts` that fails the backup copy,
       asserts the failure is logged and audited correctly, and asserts a subsequent read with
       the same corrupted content retries (and this time succeeds). Verified with `npx vitest
-  run src/config/io.observe-recovery.test.ts` (4 passed); a full-repo `tsc --noEmit` run
+run src/config/io.observe-recovery.test.ts` (4 passed); a full-repo `tsc --noEmit` run
       remains slow/OOM-prone on this box regardless of this change (pre-existing environment
       limit, unrelated).
 - [x] **bestEffort outbound delivery could silently drop messages when the caller passed no

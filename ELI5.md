@@ -76,3 +76,7 @@ where his customizations are pushed — never back to the public project.
 - **Reliability fix (2026-07-30):** fixed the old-transcript cleanup job so a file it failed to
   delete (e.g. a permissions hiccup) is no longer counted as "removed" — it's left in place and
   gets picked up again on the next cleanup pass instead of silently sticking around forever.
+- **Polish (2026-07-30):** the "No skills/channels/agents found" messages in the Control UI
+  (Skills, Nodes, and per-agent panels) now show in a consistent, clearly-framed box instead
+  of plain gray text floating with no border — same visual treatment the Sessions and Usage
+  tabs already used.
