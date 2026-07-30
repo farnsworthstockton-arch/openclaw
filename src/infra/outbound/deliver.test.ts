@@ -838,6 +838,31 @@ describe("deliverOutboundPayloads", () => {
     );
   });
 
+  it("calls failDelivery instead of ackDelivery on bestEffort partial failure without an onError callback", async () => {
+    const sendWhatsApp = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("fail"))
+      .mockResolvedValueOnce({ messageId: "w2", toJid: "jid" });
+    const cfg: OpenClawConfig = {};
+
+    await deliverOutboundPayloads({
+      cfg,
+      channel: "whatsapp",
+      to: "+1555",
+      payloads: [{ text: "a" }, { text: "b" }],
+      deps: { whatsapp: sendWhatsApp },
+      bestEffort: true,
+    });
+
+    // Even with no onError callback supplied, a failed payload must not be
+    // acked as if it succeeded — it should be marked failed for retry.
+    expect(queueMocks.ackDelivery).not.toHaveBeenCalled();
+    expect(queueMocks.failDelivery).toHaveBeenCalledWith(
+      "mock-queue-id",
+      "partial delivery failure (bestEffort)",
+    );
+  });
+
   it("writes raw payloads to the queue before normalization", async () => {
     const sendWhatsApp = vi.fn().mockResolvedValue({ messageId: "w-raw", toJid: "jid" });
     const rawPayloads: DeliverOutboundPayload[] = [

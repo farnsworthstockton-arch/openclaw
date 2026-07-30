@@ -70,3 +70,6 @@ where his customizations are pushed — never back to the public project.
   skills you turn on.
 - **Scheduling note:** the Monday market update now uses Utah's `America/Denver` clock, so its
   9:00 AM delivery stays at 9:00 AM through both winter and daylight saving time.
+- **Reliability fix (2026-07-30):** fixed a bug where some outgoing messages (like transcript
+  echoes and gateway event notifications) could silently vanish if the send failed — they now
+  correctly get queued for retry instead of being marked "delivered" when they actually weren't.

@@ -1,11 +1,29 @@
 # TODO: openclaw
 
-**Last updated:** 2026-07-29 (daily-improve)
+**Last updated:** 2026-07-30 (daily-improve)
 **Status:** Working fork of OpenClaw with CRE skill modules added; not yet running always-on.
 **Path:** openclaw
 
 ## Done
 
+- [x] **bestEffort outbound delivery could silently drop messages when the caller passed no
+      `onError`** (2026-07-30 daily-improve) — `deliverOutboundPayloads` in
+      `src/infra/outbound/deliver.ts` uses a write-ahead delivery queue: it persists the send
+      before attempting it, then acks (removes) the queue entry on success or fails it (for
+      retry) on error. Under `bestEffort: true`, a per-payload send failure is caught internally
+      and reported only via `params.onError?.(err, payload)` instead of throwing — the outer
+      function tracked "did anything fail" by wrapping that `onError` callback and flipping a
+      `hadPartialFailure` flag, but it only did this wrapping `if (params.onError)`. Two real call
+      sites (`src/media-understanding/echo-transcript.ts` and
+      `src/gateway/server-node-events.ts`) call `deliverOutboundPayloads({ ..., bestEffort: true
+    })` without passing `onError`, so a transient send failure (network blip, rate limit, bot
+      blocked) was silently swallowed, `hadPartialFailure` stayed `false`, and the queue entry
+      was acked as delivered — permanently losing the message with no retry and no error
+      surfaced anywhere. Fixed by wrapping `onError` unconditionally (defaulting to a no-op when
+      the caller didn't supply one) so `hadPartialFailure` is always tracked correctly regardless
+      of whether the caller cares about individual errors. Added a regression test in
+      `src/infra/outbound/deliver.test.ts` covering the exact no-`onError` + bestEffort path.
+      Verified with `npx vitest run src/infra/outbound/deliver.test.ts` (36 passed).
 - [x] **`openclaw skills info` misreported "any of" binary requirements as all-installed**
       (2026-07-29 daily-improve) — the prior automated passes were all UI a11y/CSS-token
       sweeps in `ui/src/ui/views/*.ts`; this pass looked in non-UI `src/` instead and found a
@@ -15,8 +33,8 @@
       `formatSkillInfo` (`src/cli/skills-cli.format.ts`) took that single aggregate
       satisfied/missing boolean and stamped it onto _every_ candidate binary's name
       individually. So a skill like `coding-agent` (`requires.anyBins: ["claude", "codex",
-    "opencode", "pi"]`) with only `claude` installed printed `✓ claude, ✓ codex, ✓ opencode,
-    ✓ pi` — falsely claiming three uninstalled CLIs were present. `src/cli/hooks-cli.ts`
+  "opencode", "pi"]`) with only `claude` installed printed `✓ claude, ✓ codex, ✓ opencode,
+  ✓ pi` — falsely claiming three uninstalled CLIs were present. `src/cli/hooks-cli.ts`
       already renders the equivalent "any of" hook requirement correctly (one combined
       ✓/✗ line naming the whole group, e.g. `✓ (any of: a, b, c)`), so brought
       `skills-cli.format.ts` in line with that existing correct pattern instead of inventing
@@ -24,7 +42,7 @@
       constructing a `SkillStatusEntry` with a satisfied `anyBins` requirement and asserting
       the output no longer contains a bogus `✓` for the unsatisfied candidates. Verified with
       `npx vitest run src/cli/skills-cli.formatting.test.ts` (3 passed); a full-repo `tsc
-    --noEmit` run OOMs on this box regardless of this change (pre-existing environment
+  --noEmit` run OOMs on this box regardless of this change (pre-existing environment
       limit, unrelated).
 - [x] **Command palette: no ARIA combobox/listbox semantics for screen readers** (2026-07-24
       visual pass) — swept `ui/src/ui/views/*.ts` for the mouse-only-clickable-div bug class
