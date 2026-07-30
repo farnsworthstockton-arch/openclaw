@@ -6,6 +6,26 @@
 
 ## Done
 
+- [x] **Archived session-transcript cleanup counted failed deletes as "removed"** (2026-07-30
+      daily-improve) — `cleanupArchivedSessionTranscripts` (`src/gateway/session-transcript-files.fs.ts`)
+      sweeps configured session directories for archived transcript files (named
+      `<original>.<reason>.<timestamp>`) older than a cutoff and deletes them, returning
+      `{ removed, scanned }` so callers can log/verify cleanup progress. The delete call was
+      `await fs.promises.rm(fullPath).catch(() => undefined); removed += 1;` — the `.catch`
+      swallowed any failure (permission error, file already gone, disk/FS hiccup) and
+      `removed` was incremented unconditionally right after, regardless of whether the file
+      actually left disk. That meant a failed delete was reported as a successful removal,
+      the stale transcript stayed on disk forever, and nothing would retry it on the next
+      sweep since the counters gave no signal anything had gone wrong. Fixed by wrapping the
+      `rm` in `try/catch` and only incrementing `removed` inside the `try` (after `rm`
+      resolves), so a failed delete leaves the file uncounted and eligible for another
+      attempt on the next sweep. Added `src/gateway/session-transcript-files.fs.test.ts`
+      (new file — no test previously existed for this module), which creates real temp
+      archived-transcript files, mocks `fs.promises.rm` to reject for one of them, and
+      asserts `scanned` still counts both files while `removed` only counts the one that
+      actually succeeded (and that the failed file is still present on disk afterward);
+      verified the test fails against the pre-fix code (`removed` came back as 2 instead of 1) before confirming it passes against the fix. Verified with `npx vitest run
+    src/gateway/session-transcript-files.fs.test.ts` (2 passed).
 - [x] **Config auto-restore falsely logged "restored" and marked corruption as handled even
       when the backup copy failed** (2026-07-30 daily-improve) —
       `maybeRecoverSuspiciousConfigRead`/`maybeRecoverSuspiciousConfigReadSync`
@@ -25,7 +45,7 @@
       regression test in `src/config/io.observe-recovery.test.ts` that fails the backup copy,
       asserts the failure is logged and audited correctly, and asserts a subsequent read with
       the same corrupted content retries (and this time succeeds). Verified with `npx vitest
-    run src/config/io.observe-recovery.test.ts` (4 passed); a full-repo `tsc --noEmit` run
+  run src/config/io.observe-recovery.test.ts` (4 passed); a full-repo `tsc --noEmit` run
       remains slow/OOM-prone on this box regardless of this change (pre-existing environment
       limit, unrelated).
 - [x] **bestEffort outbound delivery could silently drop messages when the caller passed no
@@ -38,7 +58,7 @@
       `hadPartialFailure` flag, but it only did this wrapping `if (params.onError)`. Two real call
       sites (`src/media-understanding/echo-transcript.ts` and
       `src/gateway/server-node-events.ts`) call `deliverOutboundPayloads({ ..., bestEffort: true
-  })` without passing `onError`, so a transient send failure (network blip, rate limit, bot
+})` without passing `onError`, so a transient send failure (network blip, rate limit, bot
       blocked) was silently swallowed, `hadPartialFailure` stayed `false`, and the queue entry
       was acked as delivered — permanently losing the message with no retry and no error
       surfaced anywhere. Fixed by wrapping `onError` unconditionally (defaulting to a no-op when

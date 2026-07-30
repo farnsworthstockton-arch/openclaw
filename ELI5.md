@@ -73,3 +73,6 @@ where his customizations are pushed — never back to the public project.
 - **Reliability fix (2026-07-30):** fixed a bug where some outgoing messages (like transcript
   echoes and gateway event notifications) could silently vanish if the send failed — they now
   correctly get queued for retry instead of being marked "delivered" when they actually weren't.
+- **Reliability fix (2026-07-30):** fixed the old-transcript cleanup job so a file it failed to
+  delete (e.g. a permissions hiccup) is no longer counted as "removed" — it's left in place and
+  gets picked up again on the next cleanup pass instead of silently sticking around forever.
