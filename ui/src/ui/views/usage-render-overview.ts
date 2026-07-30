@@ -258,7 +258,17 @@ function renderDailyChartCompact(
             return html`
               <div
                 class="daily-bar-wrapper ${isSelected ? "selected" : ""}"
+                role="button"
+                tabindex="0"
+                aria-pressed=${isSelected}
+                aria-label="${d.date}: ${totalLabel}"
                 @click=${(e: MouseEvent) => onSelectDay(d.date, e.shiftKey)}
+                @keydown=${(e: KeyboardEvent) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelectDay(d.date, e.shiftKey);
+                  }
+                }}
               >
                 ${dailyChartMode === "by-type"
                   ? html`
@@ -797,7 +807,17 @@ function renderSessionsCard(
     return html`
       <div
         class="session-bar-row ${isSelected ? "selected" : ""}"
+        role="button"
+        tabindex="0"
+        aria-pressed=${isSelected}
+        aria-label="${displayLabel}"
         @click=${(e: MouseEvent) => onSelectSession(s.key, e.shiftKey)}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSelectSession(s.key, e.shiftKey);
+          }
+        }}
         title="${s.key}"
       >
         <div class="session-bar-label">

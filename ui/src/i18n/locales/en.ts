@@ -272,6 +272,7 @@ export const en: TranslationMap = {
     },
     logTail: {
       title: "Gateway Logs",
+      refresh: "Refresh logs",
     },
     quickActions: {
       newSession: "New Session",

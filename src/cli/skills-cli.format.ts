@@ -231,12 +231,11 @@ export function formatSkillInfo(
       lines.push(`${theme.muted("  Binaries:")} ${binsStatus.join(", ")}`);
     }
     if (skill.requirements.anyBins.length > 0) {
-      const anyBinsMissing = skill.missing.anyBins.length > 0;
-      const anyBinsStatus = skill.requirements.anyBins.map((bin) => {
-        const missing = anyBinsMissing;
-        return missing ? theme.error(`✗ ${bin}`) : theme.success(`✓ ${bin}`);
-      });
-      lines.push(`${theme.muted("  Any binaries:")} ${anyBinsStatus.join(", ")}`);
+      const anyBinsStatus =
+        skill.missing.anyBins.length > 0
+          ? theme.error(`✗ (any of: ${skill.requirements.anyBins.join(", ")})`)
+          : theme.success(`✓ (any of: ${skill.requirements.anyBins.join(", ")})`);
+      lines.push(`${theme.muted("  Any binaries:")} ${anyBinsStatus}`);
     }
     if (skill.requirements.env.length > 0) {
       const envStatus = skill.requirements.env.map((env) => {

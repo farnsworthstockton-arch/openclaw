@@ -31,12 +31,19 @@ export function renderMarkdownSidebar(props: MarkdownSidebarProps) {
         <div class="sidebar-title">
           ${content?.kind === "canvas" ? content.title?.trim() || "Render Preview" : "Tool Details"}
         </div>
-        <button @click=${props.onClose} class="btn" title="Close sidebar">${icons.x}</button>
+        <button
+          @click=${props.onClose}
+          class="btn"
+          title="Close sidebar"
+          aria-label="Close sidebar"
+        >
+          ${icons.x}
+        </button>
       </div>
       <div class="sidebar-content">
         ${props.error
           ? html`
-              <div class="callout danger">${props.error}</div>
+              <div class="callout danger" role="alert" aria-live="assertive">${props.error}</div>
               <button @click=${props.onViewRawText} class="btn" style="margin-top: 12px;">
                 View Raw Text
               </button>

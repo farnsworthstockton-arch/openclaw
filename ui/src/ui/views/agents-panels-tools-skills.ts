@@ -517,7 +517,14 @@ export function renderAgentSkills(params: {
           `
         : nothing}
       ${params.error
-        ? html`<div class="callout danger" style="margin-top: 12px;">${params.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${params.error}
+          </div>`
         : nothing}
 
       <div class="filters" style="margin-top: 14px;">
@@ -535,7 +542,7 @@ export function renderAgentSkills(params: {
       </div>
 
       ${filtered.length === 0
-        ? html` <div class="muted" style="margin-top: 16px">No skills found.</div> `
+        ? html` <div class="empty-state" style="margin-top: 16px">No skills found.</div> `
         : html`
             <div class="agent-skills-groups" style="margin-top: 16px;">
               ${groups.map((group) =>

@@ -425,7 +425,11 @@ export function renderCron(props: CronProps) {
         >
           ${props.loading ? t("cron.summary.refreshing") : t("cron.summary.refresh")}
         </button>
-        ${props.error ? html`<span class="muted">${props.error}</span>` : nothing}
+        ${props.error
+          ? html`<span class="callout danger" role="alert" aria-live="assertive"
+              >${props.error}</span
+            >`
+          : nothing}
       </div>
     </section>
 
@@ -1473,7 +1477,18 @@ function renderJob(job: CronJob, props: CronProps) {
     action();
   };
   return html`
-    <div class=${itemClass} @click=${() => props.onLoadRuns(job.id)}>
+    <div
+      class=${itemClass}
+      role="button"
+      tabindex="0"
+      @click=${() => props.onLoadRuns(job.id)}
+      @keydown=${(e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          props.onLoadRuns(job.id);
+        }
+      }}
+    >
       <div class="list-main">
         <div class="list-title">${job.name}</div>
         <div class="list-sub">${formatCronSchedule(job)}</div>

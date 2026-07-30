@@ -1057,6 +1057,11 @@
   border-color: var(--border-strong);
 }
 
+.cfg-number:focus-within {
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
 :root[data-theme-mode="light"] .cfg-number {
   background: white;
 }

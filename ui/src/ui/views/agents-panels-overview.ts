@@ -176,6 +176,7 @@ export function renderAgentOverview(params: {
                       type="button"
                       class="chip-remove"
                       ?disabled=${disabled}
+                      aria-label="Remove ${chip}"
                       @click=${() => removeChip(i)}
                     >
                       &times;

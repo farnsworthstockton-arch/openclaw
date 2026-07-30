@@ -126,7 +126,14 @@ export function renderLogs(props: LogsProps) {
           `
         : nothing}
       ${props.error
-        ? html`<div class="callout danger" style="margin-top: 10px;">${props.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 10px;"
+          >
+            ${props.error}
+          </div>`
         : nothing}
 
       <div class="log-stream" style="margin-top: 12px;" @scroll=${props.onScroll}>

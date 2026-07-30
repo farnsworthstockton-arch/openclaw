@@ -102,7 +102,7 @@ export function renderNostrProfileForm(params: {
             placeholder=${placeholder ?? ""}
             maxlength=${maxLength ?? 2000}
             rows="3"
-            style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); resize: vertical; font-family: inherit;"
+            style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical; font-family: inherit;"
             @input=${(e: InputEvent) => {
               const target = e.target as HTMLTextAreaElement;
               callbacks.onFieldChange(field, target.value);
@@ -110,12 +110,12 @@ export function renderNostrProfileForm(params: {
             ?disabled=${state.saving}
           ></textarea>
           ${help
-            ? html`<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+            ? html`<div style="font-size: 12px; color: var(--muted); margin-top: 2px;">
                 ${help}
               </div>`
             : nothing}
           ${error
-            ? html`<div style="font-size: 12px; color: var(--danger-color); margin-top: 2px;">
+            ? html`<div style="font-size: 12px; color: var(--danger); margin-top: 2px;">
                 ${error}
               </div>`
             : nothing}
@@ -134,7 +134,7 @@ export function renderNostrProfileForm(params: {
           .value=${value}
           placeholder=${placeholder ?? ""}
           maxlength=${maxLength ?? 256}
-          style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);"
+          style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm);"
           @input=${(e: InputEvent) => {
             const target = e.target as HTMLInputElement;
             callbacks.onFieldChange(field, target.value);
@@ -142,12 +142,10 @@ export function renderNostrProfileForm(params: {
           ?disabled=${state.saving}
         />
         ${help
-          ? html`<div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
-              ${help}
-            </div>`
+          ? html`<div style="font-size: 12px; color: var(--muted); margin-top: 2px;">${help}</div>`
           : nothing}
         ${error
-          ? html`<div style="font-size: 12px; color: var(--danger-color); margin-top: 2px;">
+          ? html`<div style="font-size: 12px; color: var(--danger); margin-top: 2px;">
               ${error}
             </div>`
           : nothing}
@@ -166,7 +164,7 @@ export function renderNostrProfileForm(params: {
         <img
           src=${picture}
           alt=${t("channels.nostr.profilePicturePreview")}
-          style="max-width: 80px; max-height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);"
+          style="max-width: 80px; max-height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);"
           @error=${(e: Event) => {
             const img = e.target as HTMLImageElement;
             img.style.display = "none";
@@ -183,19 +181,26 @@ export function renderNostrProfileForm(params: {
   return html`
     <div
       class="nostr-profile-form"
-      style="padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px;"
+      style="padding: 16px; background: var(--bg-elevated); border-radius: var(--radius-md); margin-top: 12px;"
     >
       <div
         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;"
       >
         <div style="font-weight: 600; font-size: 16px;">${t("channels.nostr.editProfile")}</div>
-        <div style="font-size: 12px; color: var(--text-muted);">
+        <div style="font-size: 12px; color: var(--muted);">
           ${t("channels.nostr.account")}: ${accountId}
         </div>
       </div>
 
       ${state.error
-        ? html`<div class="callout danger" style="margin-bottom: 12px;">${state.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-bottom: 12px;"
+          >
+            ${state.error}
+          </div>`
         : nothing}
       ${state.success
         ? html`<div class="callout success" style="margin-bottom: 12px;">${state.success}</div>`
@@ -224,10 +229,8 @@ export function renderNostrProfileForm(params: {
       })}
       ${state.showAdvanced
         ? html`
-            <div
-              style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;"
-            >
-              <div style="font-weight: 500; margin-bottom: 12px; color: var(--text-muted);">
+            <div style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px;">
+              <div style="font-weight: 500; margin-bottom: 12px; color: var(--muted);">
                 ${t("channels.nostr.advanced")}
               </div>
 
@@ -281,7 +284,7 @@ export function renderNostrProfileForm(params: {
 
       ${isDirty
         ? html`
-            <div style="font-size: 12px; color: var(--warning-color); margin-top: 8px">
+            <div style="font-size: 12px; color: var(--warn); margin-top: 8px">
               ${t("common.unsavedChanges")}
             </div>
           `

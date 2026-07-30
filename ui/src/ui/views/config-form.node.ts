@@ -1133,6 +1133,7 @@ function renderArray(params: {
                         type="button"
                         class="cfg-array__item-remove"
                         title="Remove item"
+                        aria-label="Remove item"
                         ?disabled=${disabled}
                         @click=${() => {
                           const next = [...arr];
@@ -1282,6 +1283,7 @@ function renderMapField(params: {
                         type="button"
                         class="cfg-map__item-remove"
                         title="Remove entry"
+                        aria-label="Remove entry"
                         ?disabled=${disabled}
                         @click=${() => {
                           const next = { ...value };

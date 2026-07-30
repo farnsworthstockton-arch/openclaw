@@ -1,6 +1,7 @@
 # ELI5 — openclaw (Stockton's CRE fork)
 
 ## What this is
+
 This is Stockton's own copy ("fork") of **OpenClaw**, an open-source **personal AI
 assistant you run on your own devices**. Think of it as a friendly robot receptionist that
 lives on a computer you control and talks to you through the chat apps you already use —
@@ -12,6 +13,7 @@ Stockton's version is the standard OpenClaw with a set of **commercial-real-esta
 skill modules** bolted on, so the assistant can do broker work, not just general chores.
 
 ## Why it exists
+
 Stockton is a CRE broker who wants an always-on AI helper that handles real brokerage tasks
 by chat/voice instead of him sitting at a dashboard. By forking OpenClaw (which already
 solves the hard part — connecting one AI to dozens of messaging channels, voice, and a big
@@ -21,6 +23,7 @@ underwriting deals, and managing showings — all runnable on his own hardware s
 stays with him.
 
 ## How it works
+
 OpenClaw's power comes from **skills** — small plug-in modules that each teach the assistant
 one job. The base project ships general skills (notes, reminders, GitHub, Slack, Spotify,
 weather, PDF processing, transcription, etc.). Stockton's fork adds CRE-specific skills on
@@ -33,6 +36,7 @@ Stockton's own copy lives at `farnsworthstockton-arch/openclaw` (his own GitHub)
 where his customizations are pushed — never back to the public project.
 
 ### CRE skills added in this fork (Stockton can tick these off after trying each)
+
 - [ ] `crexi-sync` — sync listings with Crexi
 - [ ] `realnex-crm-commands` — drive the RealNex CRM by command
 - [ ] `prospect-research` — research prospects
@@ -48,6 +52,7 @@ where his customizations are pushed — never back to the public project.
 - [ ] `pdf-document-processing` — read and file deal PDFs (feeds the sign-back tracker)
 
 ## Current status
+
 - **Working fork, actively maintained.** It stays in sync with the upstream OpenClaw project
   and has the CRE skills added and committed to Stockton's own repo.
 - **Not yet running always-on.** The main open decisions are all Stockton's, not coding
@@ -63,3 +68,15 @@ where his customizations are pushed — never back to the public project.
   Calendar, a folder for filing deal PDFs) with plain-English notes on where to get each — so
   when you set up the machine, copy `.env.example` to `.env` and fill in the ones for the
   skills you turn on.
+- **Scheduling note:** the Monday market update now uses Utah's `America/Denver` clock, so its
+  9:00 AM delivery stays at 9:00 AM through both winter and daylight saving time.
+- **Reliability fix (2026-07-30):** fixed a bug where some outgoing messages (like transcript
+  echoes and gateway event notifications) could silently vanish if the send failed — they now
+  correctly get queued for retry instead of being marked "delivered" when they actually weren't.
+- **Reliability fix (2026-07-30):** fixed the old-transcript cleanup job so a file it failed to
+  delete (e.g. a permissions hiccup) is no longer counted as "removed" — it's left in place and
+  gets picked up again on the next cleanup pass instead of silently sticking around forever.
+- **Polish (2026-07-30):** the "No skills/channels/agents found" messages in the Control UI
+  (Skills, Nodes, and per-agent panels) now show in a consistent, clearly-framed box instead
+  of plain gray text floating with no border — same visual treatment the Sessions and Usage
+  tabs already used.

@@ -246,7 +246,15 @@ export function renderSessions(props: SessionsProps) {
         class=${extraClass}
         data-sortable
         data-sort-dir=${isActive ? props.sortDir : ""}
+        tabindex="0"
+        aria-sort=${isActive ? (props.sortDir === "asc" ? "ascending" : "descending") : "none"}
         @click=${() => props.onSortChange(col, isActive ? nextDir : "desc")}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            props.onSortChange(col, isActive ? nextDir : "desc");
+          }
+        }}
       >
         ${label}
         <span class="data-table-sort-icon">${icons.arrowUpDown}</span>
@@ -331,7 +339,14 @@ export function renderSessions(props: SessionsProps) {
       </div>
 
       ${props.error
-        ? html`<div class="callout danger" style="margin-bottom: 12px;">${props.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-bottom: 12px;"
+          >
+            ${props.error}
+          </div>`
         : nothing}
 
       <div class="data-table-wrapper">
@@ -647,7 +662,9 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
                 ${props.checkpointLoadingKey === row.key
                   ? html`<div class="muted">Loading checkpoints…</div>`
                   : checkpointError
-                    ? html`<div class="callout danger">${checkpointError}</div>`
+                    ? html`<div class="callout danger" role="alert" aria-live="assertive">
+                        ${checkpointError}
+                      </div>`
                     : checkpointItems.length === 0
                       ? html`<div class="muted">
                           No compaction checkpoints recorded for this session.

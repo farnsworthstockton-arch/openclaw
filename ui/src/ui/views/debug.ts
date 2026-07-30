@@ -99,7 +99,14 @@ export function renderDebug(props: DebugProps) {
           <button class="btn primary" @click=${props.onCall}>${t("common.call")}</button>
         </div>
         ${props.callError
-          ? html`<div class="callout danger" style="margin-top: 12px;">${props.callError}</div>`
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 12px;"
+            >
+              ${props.callError}
+            </div>`
           : nothing}
         ${props.callResult
           ? html`<pre class="code-block" style="margin-top: 12px;">${props.callResult}</pre>`

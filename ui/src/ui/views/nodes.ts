@@ -48,7 +48,14 @@ function renderDevices(props: NodesProps) {
         </button>
       </div>
       ${props.devicesError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.devicesError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${props.devicesError}
+          </div>`
         : nothing}
       <div class="list" style="margin-top: 16px;">
         ${pending.length > 0
@@ -273,7 +280,7 @@ function renderBindings(state: BindingState) {
               </div>
 
               ${state.agents.length === 0
-                ? html` <div class="muted">No agents found.</div> `
+                ? html` <div class="empty-state">No agents found.</div> `
                 : state.agents.map((agent) => renderAgentBinding(agent, state))}
             </div>
           `}

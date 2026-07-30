@@ -260,8 +260,13 @@ export async function cleanupArchivedSessionTranscripts(opts: {
       if (!stat?.isFile()) {
         continue;
       }
-      await fs.promises.rm(fullPath).catch(() => undefined);
-      removed += 1;
+      try {
+        await fs.promises.rm(fullPath);
+        removed += 1;
+      } catch {
+        // Leave the file in place so it's retried on the next sweep instead of
+        // being silently counted as removed when the delete actually failed.
+      }
     }
   }
 

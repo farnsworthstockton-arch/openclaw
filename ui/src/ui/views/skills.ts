@@ -196,7 +196,12 @@ export function renderSkills(props: SkillsProps) {
           ${props.clawhubSearchLoading ? html`<span class="muted">Searching…</span>` : nothing}
         </div>
         ${props.clawhubSearchError
-          ? html`<div class="callout danger" style="margin-top: 8px;">
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 8px;"
+            >
               ${props.clawhubSearchError}
             </div>`
           : nothing}
@@ -212,11 +217,18 @@ export function renderSkills(props: SkillsProps) {
       </div>
 
       ${props.error
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.error}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${props.error}
+          </div>`
         : nothing}
       ${filtered.length === 0
         ? html`
-            <div class="muted" style="margin-top: 16px">
+            <div class="empty-state" style="margin-top: 16px">
               ${!props.connected && !props.report
                 ? "Not connected to gateway."
                 : "No skills found."}
@@ -252,7 +264,9 @@ function renderClawHubResults(props: SkillsProps) {
     return nothing;
   }
   if (results.length === 0) {
-    return html`<div class="muted" style="margin-top: 8px;">No skills found on ClawHub.</div>`;
+    return html`<div class="empty-state" style="margin-top: 8px;">
+      No skills found on ClawHub.
+    </div>`;
   }
   return html`
     <div class="list" style="margin-top: 8px;">
@@ -260,7 +274,15 @@ function renderClawHubResults(props: SkillsProps) {
         (r) => html`
           <div
             class="list-item list-item-clickable"
+            role="button"
+            tabindex="0"
             @click=${() => props.onClawHubDetailOpen(r.slug)}
+            @keydown=${(e: KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                props.onClawHubDetailOpen(r.slug);
+              }
+            }}
           >
             <div class="list-main">
               <div class="list-title">${r.displayName}</div>
@@ -327,7 +349,9 @@ function renderClawHubDetailDialog(props: SkillsProps) {
           ${props.clawhubDetailLoading
             ? html`<div class="muted">${t("common.loading")}</div>`
             : props.clawhubDetailError
-              ? html`<div class="callout danger">${props.clawhubDetailError}</div>`
+              ? html`<div class="callout danger" role="alert" aria-live="assertive">
+                  ${props.clawhubDetailError}
+                </div>`
               : detail?.skill
                 ? html`
                     <div style="font-size: 14px; line-height: 1.5;">
@@ -384,7 +408,18 @@ function renderSkill(skill: SkillStatusEntry, props: SkillsProps) {
   const dotClass = skillStatusClass(skill);
 
   return html`
-    <div class="list-item list-item-clickable" @click=${() => props.onDetailOpen(skill.skillKey)}>
+    <div
+      class="list-item list-item-clickable"
+      role="button"
+      tabindex="0"
+      @click=${() => props.onDetailOpen(skill.skillKey)}
+      @keydown=${(e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          props.onDetailOpen(skill.skillKey);
+        }
+      }}
+    >
       <div class="list-main">
         <div class="list-title" style="display: flex; align-items: center; gap: 8px;">
           <span class="statusDot ${dotClass}"></span>

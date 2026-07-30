@@ -95,6 +95,66 @@ describe("config observe recovery", () => {
     });
   });
 
+  it("reports restore failure and retries instead of claiming success when the backup copy fails", async () => {
+    await withSuiteHome(async (home) => {
+      const { deps, configPath, auditPath, warn } = makeDeps(home);
+      await seedConfig(configPath, {
+        update: { channel: "beta" },
+        browser: { enabled: true },
+        gateway: { mode: "local", auth: { mode: "token", token: "secret-token" } },
+        channels: { discord: { enabled: true, dmPolicy: "pairing" } },
+      });
+      await fsp.copyFile(configPath, `${configPath}.bak`);
+
+      const clobberedRaw = `${JSON.stringify({ update: { channel: "beta" } }, null, 2)}\n`;
+      await fsp.writeFile(configPath, clobberedRaw, "utf-8");
+
+      const failingDeps: ObserveRecoveryDeps = {
+        ...deps,
+        fs: {
+          ...fs,
+          promises: {
+            ...fs.promises,
+            copyFile: async () => {
+              throw new Error("EACCES: permission denied");
+            },
+          },
+        },
+      };
+
+      const recovered = await maybeRecoverSuspiciousConfigRead({
+        deps: failingDeps,
+        configPath,
+        raw: clobberedRaw,
+        parsed: { update: { channel: "beta" } },
+      });
+
+      expect((recovered.parsed as { gateway?: { mode?: string } }).gateway?.mode).toBe("local");
+      await expect(fsp.readFile(configPath, "utf-8")).resolves.toBe(clobberedRaw);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("Config auto-restore FAILED"));
+      expect(warn).not.toHaveBeenCalledWith(
+        expect.stringContaining("Config auto-restored from backup:"),
+      );
+
+      const lines = (await fsp.readFile(auditPath, "utf-8")).trim().split("\n").filter(Boolean);
+      const observe = lines
+        .map((line) => JSON.parse(line) as Record<string, unknown>)
+        .findLast((line) => line.event === "config.observe");
+      expect(observe?.restoredFromBackup).toBe(false);
+
+      // A later read with the same corrupted content should retry recovery rather than
+      // treating the failed attempt as resolved.
+      const retried = await maybeRecoverSuspiciousConfigRead({
+        deps,
+        configPath,
+        raw: clobberedRaw,
+        parsed: { update: { channel: "beta" } },
+      });
+      expect((retried.parsed as { gateway?: { mode?: string } }).gateway?.mode).toBe("local");
+      await expect(fsp.readFile(configPath, "utf-8")).resolves.not.toBe(clobberedRaw);
+    });
+  });
+
   it("dedupes repeated suspicious hashes", async () => {
     await withSuiteHome(async (home) => {
       const { deps, configPath, auditPath } = makeDeps(home);

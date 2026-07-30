@@ -44,7 +44,14 @@ export function renderInstances(props: InstancesProps) {
         </div>
       </div>
       ${props.lastError
-        ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
+            ${props.lastError}
+          </div>`
         : nothing}
       ${props.statusMessage
         ? html`<div class="callout" style="margin-top: 12px;">${props.statusMessage}</div>`

@@ -101,7 +101,12 @@ export function renderLoginGate(state: AppViewState) {
           </button>
         </div>
         ${state.lastError
-          ? html`<div class="callout danger" style="margin-top: 14px;">
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 14px;"
+            >
               <div>${state.lastError}</div>
             </div>`
           : ""}

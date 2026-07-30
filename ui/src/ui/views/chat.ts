@@ -556,7 +556,12 @@ function renderContextNotice(
   const bgOpacity = 0.08 + 0.08 * t;
   const bg = `rgba(${r}, ${g}, ${b}, ${bgOpacity})`;
   return html`
-    <div class="context-notice" role="status" style="--ctx-color:${color};--ctx-bg:${bg}">
+    <div
+      class="context-notice"
+      role="status"
+      aria-live="polite"
+      style="--ctx-color:${color};--ctx-bg:${bg}"
+    >
       <svg
         class="context-notice__icon"
         width="16"
@@ -995,6 +1000,7 @@ function renderPinnedSection(
                         requestUpdate();
                       }}
                       title="Unpin"
+                      aria-label="Unpin"
                     >
                       ${icons.x}
                     </button>
@@ -1425,7 +1431,9 @@ export function renderChat(props: ChatProps) {
       @dragover=${(e: DragEvent) => e.preventDefault()}
     >
       ${props.disabledReason ? html`<div class="callout">${props.disabledReason}</div>` : nothing}
-      ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
+      ${props.error
+        ? html`<div class="callout danger" role="alert" aria-live="assertive">${props.error}</div>`
+        : nothing}
       ${props.focusMode
         ? html`
             <button

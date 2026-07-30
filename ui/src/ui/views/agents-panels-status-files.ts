@@ -181,7 +181,14 @@ export function renderAgentChannels(params: {
         </div>
         <div class="muted" style="margin-top: 8px;">Last refresh: ${lastSuccessLabel}</div>
         ${params.error
-          ? html`<div class="callout danger" style="margin-top: 12px;">${params.error}</div>`
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 12px;"
+            >
+              ${params.error}
+            </div>`
           : nothing}
         ${!params.snapshot
           ? html`
@@ -191,7 +198,7 @@ export function renderAgentChannels(params: {
             `
           : nothing}
         ${entries.length === 0
-          ? html` <div class="muted" style="margin-top: 16px">No channels found.</div> `
+          ? html` <div class="empty-state" style="margin-top: 16px">No channels found.</div> `
           : html`
               <div class="list" style="margin-top: 16px;">
                 ${entries.map((entry) => {
@@ -295,7 +302,14 @@ export function renderAgentCron(params: {
           </div>
         </div>
         ${params.error
-          ? html`<div class="callout danger" style="margin-top: 12px;">${params.error}</div>`
+          ? html`<div
+              class="callout danger"
+              role="alert"
+              aria-live="assertive"
+              style="margin-top: 12px;"
+            >
+              ${params.error}
+            </div>`
           : nothing}
       </section>
     </section>
@@ -387,7 +401,12 @@ export function renderAgentFiles(params: {
           </div>`
         : nothing}
       ${params.agentFilesError
-        ? html`<div class="callout danger" style="margin-top: 12px;">
+        ? html`<div
+            class="callout danger"
+            role="alert"
+            aria-live="assertive"
+            style="margin-top: 12px;"
+          >
             ${params.agentFilesError}
           </div>`
         : nothing}
